@@ -25,7 +25,7 @@ export interface IsTheServiceDownResult {
 }
 
 const URL = 'https://istheservicedown.com/problems/t-mobile';
-const USER_AGENT = 'Mozilla/5.0 (compatible; T-Insight/1.0)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; InsighT/1.0)';
 
 /**
  * Scrape IsTheServiceDown for T-Mobile status

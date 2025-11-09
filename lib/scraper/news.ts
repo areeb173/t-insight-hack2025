@@ -25,7 +25,7 @@ const SEARCH_QUERIES = [
   'T-Mobile billing issue',
 ];
 
-const USER_AGENT = 'Mozilla/5.0 (compatible; T-Insight/1.0)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; InsighT/1.0)';
 
 /**
  * Fetch news for a single search query

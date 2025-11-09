@@ -78,7 +78,7 @@ ${prd.implementation.phase2.map((s) => `- ${s}`).join('\n')}
 ${prd.risks.map((r) => `- ${r}`).join('\n')}
 
 ---
-*Generated with T-Insight AI*
+*Generated with InsighT AI*
 `
 
     navigator.clipboard.writeText(prdMarkdown)
@@ -333,7 +333,7 @@ ${prd.risks.map((r) => `- ${r}`).join('\n')}
 
         <div className="mt-6 pt-6 border-t border-tmobile-gray-200 text-center">
           <p className="text-xs text-tmobile-gray-500 italic">
-            Generated with T-Insight AI • Powered by Gemini 2.0 Flash
+            Generated with InsighT AI • Powered by Gemini 2.0 Flash
           </p>
         </div>
       </DialogContent>

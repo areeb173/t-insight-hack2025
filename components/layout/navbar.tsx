@@ -17,7 +17,7 @@ export function Navbar({ userEmail }: NavbarProps) {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/pm/opportunities', label: 'PM Workbench' },
-    { href: '/how-it-works', label: 'How It Works' },
+    { href: '/pipeline', label: 'Pipeline' },
     { href: '/dashboard/geo', label: 'GeoMap' },
   ]
 
@@ -37,7 +37,7 @@ export function Navbar({ userEmail }: NavbarProps) {
           >
             <Image
               src="/navbar-logo.png"
-              alt="T-Insight Logo"
+              alt="InsighT Logo"
               width={140}
               height={65}
               className="relative transition-all duration-300 group-hover:brightness-110"

@@ -8,9 +8,9 @@ import { Card } from '@/components/ui/card'
 const diagrams = {
   journey: {
     title: 'PM Daily Journey',
-    description: 'How product managers use T-Insight throughout their day',
+    description: 'How product managers use InsighT throughout their day',
     chart: `journey
-    title PM Daily Workflow with T-Insight
+    title PM Daily Workflow with InsighT
     section Morning Review
       Check CHI Score: 5: PM
       Review New Signals: 4: PM

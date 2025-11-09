@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-8">
           <Image
             src="/login-logo.svg"
-            alt="T-Insight Logo"
+            alt="InsighT Logo"
             width={200}
             height={67}
             priority
@@ -46,7 +46,7 @@ export default function LoginPage() {
         <Card className="border-tmobile-gray-200 shadow-xl backdrop-blur-sm bg-white/95">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-semibold text-center">
-              Sign in to T-Insight
+              Sign in to InsighT
             </CardTitle>
             <CardDescription className="text-center">
               Enter your credentials to access your account

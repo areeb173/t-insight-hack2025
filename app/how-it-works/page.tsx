@@ -32,7 +32,7 @@ export default function HowItWorksPage() {
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-[#E8258E] mb-4">How T-Insight Works</h1>
+          <h1 className="text-5xl font-bold text-[#E8258E] mb-4">Pipeline</h1>
           <p className="text-xl text-tmobile-gray-600 max-w-3xl mx-auto">
             A PM-first intelligence workspace that transforms customer signals into actionable
             opportunities
@@ -219,7 +219,7 @@ export default function HowItWorksPage() {
                   <h4 className="font-bold text-lg mb-2">Execute & Validate</h4>
                   <p className="text-tmobile-gray-700">
                     Mark opportunities as "In Progress" while working, then "Done" when deployed.
-                    T-Insight automatically monitors recovery and generates release notes when
+                    InsighT automatically monitors recovery and generates release notes when
                     sentiment improves.
                   </p>
                 </div>

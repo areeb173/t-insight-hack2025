@@ -23,7 +23,7 @@ export interface RedditScraperResult {
 }
 
 const SUBREDDITS = ['tmobile', 'tmobileisp'];
-const USER_AGENT = 'Mozilla/5.0 (compatible; T-Insight/1.0)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; InsighT/1.0)';
 
 /**
  * Fetch posts from a single subreddit
