@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TrendingUp, TrendingDown, Minus, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,11 @@ interface ProductAreaDetailProps {
   onClose: () => void
 }
 
+interface RecommendedAction {
+  title: string
+  description: string
+}
+
 export function ProductAreaDetail({
   productArea,
   isOpen,
@@ -56,6 +61,9 @@ export function ProductAreaDetail({
 }: ProductAreaDetailProps) {
   const [detailData, setDetailData] = useState<ProductAreaDetailData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [actions, setActions] = useState<RecommendedAction[]>([])
+  const [loadingActions, setLoadingActions] = useState(false)
+  const [actionsError, setActionsError] = useState<string | null>(null)
 
   // Fetch detailed data when modal opens
   useEffect(() => {
@@ -73,6 +81,58 @@ export function ProductAreaDetail({
         })
     }
   }, [isOpen, productArea])
+
+  // Fetch recommended actions when modal opens and detail data is available
+  useEffect(() => {
+    if (isOpen && productArea && detailData) {
+      setLoadingActions(true)
+      setActionsError(null)
+      
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+      fetch(`${baseUrl}/api/insights/product-area-actions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productArea: {
+            id: productArea.id,
+            name: productArea.name,
+          },
+          chi: productArea.chi,
+          trend: productArea.trend,
+          signalCount: productArea.signalCount,
+          topIssues: detailData.topIssues || [],
+        }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((errorData) => {
+              throw new Error(errorData.message || errorData.error || 'Failed to generate actions')
+            })
+          }
+          return res.json()
+        })
+        .then((data) => {
+          if (data.success && data.actions) {
+            // Ensure we only show 3 actions
+            setActions(data.actions.slice(0, 3))
+          } else {
+            throw new Error('Invalid response from API')
+          }
+          setLoadingActions(false)
+        })
+        .catch((error) => {
+          console.error('Error generating recommended actions:', error)
+          setActionsError(error instanceof Error ? error.message : 'Failed to generate actions')
+          setLoadingActions(false)
+        })
+    } else if (!isOpen) {
+      // Reset actions when modal closes
+      setActions([])
+      setActionsError(null)
+    }
+  }, [isOpen, productArea, detailData])
 
   if (!productArea) return null
 
@@ -351,50 +411,54 @@ export function ProductAreaDetail({
               </CardTitle>
             </CardHeader>
             <CardContent className="relative">
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                  <div
-                    className="h-6 w-6 rounded-full flex items-center justify-center mt-0.5 shadow-md"
-                    style={{
-                      backgroundColor: productArea.color,
-                      boxShadow: `0 0 15px ${productArea.color}40`
-                    }}
-                  >
-                    <span className="text-white text-xs font-bold">1</span>
+              {loadingActions ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#E8258E] mb-3" />
+                  <p className="text-sm text-tmobile-gray-600">Generating recommendations...</p>
+                </div>
+              ) : actionsError ? (
+                <div className="py-6">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-800 font-semibold mb-2 text-sm">Error</p>
+                    <p className="text-red-700 text-xs">{actionsError}</p>
+                    {actionsError.includes('GEMINI_API_KEY') && (
+                      <p className="text-red-600 text-xs mt-2">
+                        Please add GEMINI_API_KEY to your .env.local file
+                      </p>
+                    )}
                   </div>
-                  <span className="text-sm font-medium text-tmobile-gray-800 flex-1">
-                    Investigate top emerging issue with highest intensity
-                  </span>
-                </li>
-                <li className="flex items-start gap-3 p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                  <div
-                    className="h-6 w-6 rounded-full flex items-center justify-center mt-0.5 shadow-md"
-                    style={{
-                      backgroundColor: productArea.color,
-                      boxShadow: `0 0 15px ${productArea.color}40`
-                    }}
-                  >
-                    <span className="text-white text-xs font-bold">2</span>
-                  </div>
-                  <span className="text-sm font-medium text-tmobile-gray-800 flex-1">
-                    Create opportunity to address connectivity concerns
-                  </span>
-                </li>
-                <li className="flex items-start gap-3 p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
-                  <div
-                    className="h-6 w-6 rounded-full flex items-center justify-center mt-0.5 shadow-md"
-                    style={{
-                      backgroundColor: productArea.color,
-                      boxShadow: `0 0 15px ${productArea.color}40`
-                    }}
-                  >
-                    <span className="text-white text-xs font-bold">3</span>
-                  </div>
-                  <span className="text-sm font-medium text-tmobile-gray-800 flex-1">
-                    Review feature requests for potential quick wins
-                  </span>
-                </li>
-              </ul>
+                </div>
+              ) : actions.length > 0 ? (
+                <ul className="space-y-4">
+                  {actions.map((action, index) => (
+                    <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-white/80 hover:bg-white transition-colors">
+                      <div
+                        className="h-6 w-6 rounded-full flex items-center justify-center mt-0.5 shadow-md flex-shrink-0"
+                        style={{
+                          backgroundColor: productArea.color,
+                          boxShadow: `0 0 15px ${productArea.color}40`
+                        }}
+                      >
+                        <span className="text-white text-xs font-bold">{index + 1}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-tmobile-gray-800 mb-1">
+                          {action.title}
+                        </p>
+                        {action.description && (
+                          <p className="text-xs text-tmobile-gray-600 leading-relaxed">
+                            {action.description}
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-sm text-tmobile-gray-600">No recommendations available</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
