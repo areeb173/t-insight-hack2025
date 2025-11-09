@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# T-Insight
 
-## Getting Started
+A comprehensive customer intelligence platform for T-Mobile that aggregates customer feedback from multiple sources, analyzes sentiment, and generates AI-powered actionable insights to improve customer experience.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Dashboard
+- **Customer Happiness Index (CHI)** - Real-time sentiment scoring across product areas
+- **Emerging Issues Tracking** - Identify and prioritize critical customer issues
+- **Product Area Analytics** - Deep dive into Network, Mobile App, Billing, and Home Internet metrics
+- **Top Performers** - Track best-performing product areas
+- **Early Warning System** - Proactive alerts for rising issues
+- **Real-time Activity Feed** - Live customer signal monitoring
+- **Sentiment Timeline** - Historical sentiment trends
+- **Geographic Heatmap** - Visualize customer feedback by location
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### AI-Powered Insights
+- **Actionable Insights Generation** - AI-generated recommendations for emerging issues using Google Gemini
+- **Product Area Recommendations** - Context-aware action items for each product area
+- **PRD Generation** - Automated Product Requirements Document creation
+- **User Stories Generation** - AI-generated user stories from customer signals
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Data Sources
+- **Reddit** - r/tmobile and r/tmobileisp posts
+- **Google News** - T-Mobile related news articles
+- **DownDetector** - Network outage reports
+- **IsTheServiceDown** - Service status monitoring
+- **Outage.Report** - Outage tracking
+- **Customer Feedback** - BestCompany.com reviews
+- **T-Mobile Community** - Community discussions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Opportunity Management
+- **RICE Scoring** - Prioritize opportunities by Reach, Impact, Confidence, and Effort
+- **Evidence Tracking** - Link customer signals to opportunities
+- **PRD Management** - Generate and manage product requirements
+- **User Story Mapping** - Create and track user stories
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+### Core Framework
+- **Next.js 16.0.1**
+- **React 19.2.0**
+- **TypeScript 5**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Database & Authentication
+- **Supabase** - PostgreSQL database and authentication
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Generative AI
+- **Google Gemini AI** - AI-powered insights generation
+  - Model: `gemini-2.0-flash`
+  - Used for: Insights generation, PRD creation, user stories, product area recommendations
 
-## Deploy on Vercel
+### Web Scraping
+- **Cheerio** - HTML parsing and DOM manipulation
+  - Used for: IsTheServiceDown, Customer Feedback scraping
+- **fast-xml-parser** - XML/RSS parsing
+  - Used for: Google News RSS feeds
+- **Native Fetch API** - HTTP requests for all scrapers
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Data Processing
+- **wink-sentiment** - Sentiment analysis
+- **keyword-extractor** - Keyword extraction from text
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### UI Components
+- **Radix UI** - Accessible component primitives
+  - Dialog, Dropdown Menu, Select, Label, Separator, Collapsible
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Lucide React** - Icon library
+- **Recharts** - Chart library for data visualization
+- **Sonner** - Toast notifications
+
+### Maps & Visualization
+- **Leaflet** - Interactive maps
+- **React Leaflet** - React bindings for Leaflet
+- **leaflet.heat** - Heatmap layer for Leaflet
+
+### Utilities
+- **date-fns** - Date manipulation
+- **zod** - Schema validation
+- **clsx** - Conditional class names
+- **tailwind-merge** - Merge Tailwind classes
+- **class-variance-authority** - Component variants
+
+## APIs & External Services
+
+### Google Gemini AI
+- **Purpose**: Generate actionable insights, PRDs, user stories, and recommendations
+- **Model**: `gemini-2.0-flash`
+
+### Supabase
+- **Purpose**: Database, authentication, and real-time subscriptions
+- **Services Used**:
+  - PostgreSQL database
+  - Authentication (email/password)
+
+### Data Sources (Scraped)
+- **Reddit** - JSON API endpoints for r/tmobile and r/tmobileisp
+- **Google News** - RSS feeds
+- **DownDetector** - Static data files
+- **IsTheServiceDown** - HTML scraping
+- **Outage.Report** - HTML scraping
+- **BestCompany.com** - HTML scraping
