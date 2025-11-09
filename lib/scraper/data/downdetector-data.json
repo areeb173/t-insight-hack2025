@@ -1,0 +1,207 @@
+{
+  "total_reports": 847,
+  "baseline": 50,
+  "status": "issues",
+  "problem_types": [
+    { "type": "Mobile network", "percentage": 52 },
+    { "type": "Mobile App", "percentage": 28 },
+    { "type": "Billing", "percentage": 12 },
+    { "type": "Website", "percentage": 8 }
+  ],
+  "outage_locations": [
+    {
+      "city": "New York",
+      "state": "NY",
+      "lat": 40.7128,
+      "lng": -74.0060,
+      "reportCount": 127,
+      "problemType": "Mobile network",
+      "severity": "high",
+      "comments": [
+        "No service in Manhattan for the past 2 hours",
+        "5G completely down, LTE spotty",
+        "Cannot make calls in downtown area"
+      ]
+    },
+    {
+      "city": "Los Angeles",
+      "state": "CA",
+      "lat": 34.0522,
+      "lng": -118.2437,
+      "reportCount": 94,
+      "problemType": "Mobile network",
+      "severity": "medium",
+      "comments": [
+        "Network issues in West LA",
+        "Data speeds extremely slow today"
+      ]
+    },
+    {
+      "city": "Chicago",
+      "state": "IL",
+      "lat": 41.8781,
+      "lng": -87.6298,
+      "reportCount": 156,
+      "problemType": "Mobile network",
+      "severity": "critical",
+      "comments": [
+        "Total blackout in my neighborhood",
+        "Network down since this morning",
+        "Can't connect to tower"
+      ]
+    },
+    {
+      "city": "Houston",
+      "state": "TX",
+      "lat": 29.7604,
+      "lng": -95.3698,
+      "reportCount": 83,
+      "problemType": "Mobile App",
+      "severity": "medium",
+      "comments": [
+        "App keeps crashing when I try to pay my bill",
+        "Cannot login to my account"
+      ]
+    },
+    {
+      "city": "Dallas",
+      "state": "TX",
+      "lat": 32.7767,
+      "lng": -96.7970,
+      "reportCount": 78,
+      "problemType": "Mobile network",
+      "severity": "medium",
+      "comments": [
+        "5G not working in this area",
+        "Service has been spotty all day"
+      ]
+    },
+    {
+      "city": "Phoenix",
+      "state": "AZ",
+      "lat": 33.4484,
+      "lng": -112.0740,
+      "reportCount": 45,
+      "problemType": "Mobile App",
+      "severity": "low",
+      "comments": [
+        "T-Mobile Tuesday app not loading"
+      ]
+    },
+    {
+      "city": "Philadelphia",
+      "state": "PA",
+      "lat": 39.9526,
+      "lng": -75.1652,
+      "reportCount": 62,
+      "problemType": "Mobile network",
+      "severity": "medium",
+      "comments": [
+        "Coverage is terrible in this area lately",
+        "Lost all bars suddenly"
+      ]
+    },
+    {
+      "city": "Seattle",
+      "state": "WA",
+      "lat": 47.6062,
+      "lng": -122.3321,
+      "reportCount": 71,
+      "problemType": "Billing",
+      "severity": "medium",
+      "comments": [
+        "My bill shows incorrect charges again",
+        "Getting error message when checking my balance"
+      ]
+    },
+    {
+      "city": "San Francisco",
+      "state": "CA",
+      "lat": 37.7749,
+      "lng": -122.4194,
+      "reportCount": 52,
+      "problemType": "Mobile network",
+      "severity": "medium",
+      "comments": [
+        "Network issues since this morning",
+        "Calls keep dropping"
+      ]
+    },
+    {
+      "city": "Miami",
+      "state": "FL",
+      "lat": 25.7617,
+      "lng": -80.1918,
+      "reportCount": 38,
+      "problemType": "Mobile network",
+      "severity": "low",
+      "comments": [
+        "Data speeds extremely slow today"
+      ]
+    },
+    {
+      "city": "Atlanta",
+      "state": "GA",
+      "lat": 33.7490,
+      "lng": -84.3880,
+      "reportCount": 41,
+      "problemType": "Website",
+      "severity": "low",
+      "comments": [
+        "Website won't load on mobile or desktop"
+      ]
+    }
+  ],
+  "user_comments": [
+    {
+      "text": "No service in Manhattan for the past 2 hours",
+      "timestamp": "2025-01-08T14:32:00Z",
+      "location": "New York, NY"
+    },
+    {
+      "text": "Total blackout in my neighborhood",
+      "timestamp": "2025-01-08T14:28:00Z",
+      "location": "Chicago, IL"
+    },
+    {
+      "text": "5G completely down, LTE spotty",
+      "timestamp": "2025-01-08T14:25:00Z",
+      "location": "New York, NY"
+    },
+    {
+      "text": "Network down since this morning",
+      "timestamp": "2025-01-08T14:20:00Z",
+      "location": "Chicago, IL"
+    },
+    {
+      "text": "Network issues in West LA",
+      "timestamp": "2025-01-08T14:15:00Z",
+      "location": "Los Angeles, CA"
+    },
+    {
+      "text": "App keeps crashing when I try to pay my bill",
+      "timestamp": "2025-01-08T14:10:00Z",
+      "location": "Houston, TX"
+    },
+    {
+      "text": "5G not working in this area",
+      "timestamp": "2025-01-08T14:05:00Z",
+      "location": "Dallas, TX"
+    },
+    {
+      "text": "Cannot make calls in downtown area",
+      "timestamp": "2025-01-08T14:00:00Z",
+      "location": "New York, NY"
+    },
+    {
+      "text": "Can't connect to tower",
+      "timestamp": "2025-01-08T13:55:00Z",
+      "location": "Chicago, IL"
+    },
+    {
+      "text": "Coverage is terrible in this area lately",
+      "timestamp": "2025-01-08T13:50:00Z",
+      "location": "Philadelphia, PA"
+    }
+  ]
+}

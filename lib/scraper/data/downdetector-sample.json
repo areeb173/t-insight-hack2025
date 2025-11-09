@@ -6,13 +6,13 @@
     { "type": "Website", "percentage": 10 }
   ],
   "sampleComments": [
-    "Network down in Dallas, TX. No data at all.",
+    "Network down completely. No data at all.",
     "App keeps crashing when I try to pay my bill",
-    "5G not working in Seattle area",
-    "Cannot make calls in downtown Chicago",
+    "5G not working in this area",
+    "Cannot make calls in downtown area",
     "Been trying to login to my account for 30 minutes",
     "Home internet gateway keeps disconnecting",
-    "No service in Brooklyn for the past hour",
+    "No service for the past hour",
     "Getting error message when checking my balance",
     "Coverage is terrible in this area lately",
     "Customer service line is busy, probably an outage",
@@ -20,20 +20,48 @@
     "Website won't load on mobile or desktop",
     "LTE working but 5G is completely down",
     "T-Mobile Tuesday app not loading",
-    "Cannot send or receive text messages"
+    "Cannot send or receive text messages",
+    "Data speeds extremely slow today",
+    "Lost all bars suddenly",
+    "Calls keep dropping",
+    "Can't connect to tower",
+    "Network issues since this morning",
+    "Total blackout in my neighborhood",
+    "Service has been spotty all day",
+    "Unable to access voicemail",
+    "Mobile hotspot not working",
+    "Roaming when I shouldn't be"
   ],
-  "locations": [
-    "New York, NY",
-    "Los Angeles, CA",
-    "Chicago, IL",
-    "Houston, TX",
-    "Phoenix, AZ",
-    "Philadelphia, PA",
-    "San Antonio, TX",
-    "San Diego, CA",
-    "Dallas, TX",
-    "San Jose, CA",
-    "Austin, TX",
-    "Seattle, WA"
+  "outagePatterns": [
+    {
+      "region": "Northeast",
+      "states": ["NY", "PA", "MA", "MD", "DC"],
+      "peakHours": [8, 9, 17, 18],
+      "commonIssues": ["Mobile network", "Mobile App"]
+    },
+    {
+      "region": "Southeast",
+      "states": ["FL", "GA", "NC", "TN"],
+      "peakHours": [7, 8, 16, 17],
+      "commonIssues": ["Mobile network", "Billing"]
+    },
+    {
+      "region": "Midwest",
+      "states": ["IL", "OH", "MI", "WI", "MN", "MO", "IN", "KS", "NE"],
+      "peakHours": [9, 10, 18, 19],
+      "commonIssues": ["Mobile network", "Website"]
+    },
+    {
+      "region": "Southwest",
+      "states": ["TX", "AZ", "NM", "OK"],
+      "peakHours": [8, 9, 17, 18, 19],
+      "commonIssues": ["Mobile network", "Mobile App"]
+    },
+    {
+      "region": "West",
+      "states": ["CA", "WA", "OR", "NV", "CO"],
+      "peakHours": [7, 8, 16, 17],
+      "commonIssues": ["Mobile network", "Billing", "Mobile App"]
+    }
   ]
 }

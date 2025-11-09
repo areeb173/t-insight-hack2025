@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { TrendingUp, TrendingDown, Minus, AlertCircle, CheckCircle2 } from 'lucide-react'
 import {
   Dialog,
@@ -21,6 +22,27 @@ interface ProductArea {
   signalCount: number
 }
 
+interface ProductAreaDetailData {
+  id: string
+  name: string
+  color: string
+  chi: number
+  trend: number
+  signalCount: number
+  resolvedCount: number
+  sentimentTimeline: Array<{
+    timestamp: string
+    sentiment: number
+  }>
+  topIssues: Array<{
+    id: string
+    topic: string
+    intensity: number
+    sentiment: number
+    sourceCount: number
+  }>
+}
+
 interface ProductAreaDetailProps {
   productArea: ProductArea | null
   isOpen: boolean
@@ -32,18 +54,36 @@ export function ProductAreaDetail({
   isOpen,
   onClose,
 }: ProductAreaDetailProps) {
+  const [detailData, setDetailData] = useState<ProductAreaDetailData | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  // Fetch detailed data when modal opens
+  useEffect(() => {
+    if (isOpen && productArea) {
+      setLoading(true)
+      fetch(`/api/dashboard/product-area/${productArea.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setDetailData(data)
+          setLoading(false)
+        })
+        .catch((error) => {
+          console.error('Error fetching product area detail:', error)
+          setLoading(false)
+        })
+    }
+  }, [isOpen, productArea])
+
   if (!productArea) return null
 
-  // Generate mock sentiment data specific to this product area
-  const now = new Date()
-  const areasentimentData = Array.from({ length: 24 }, (_, i) => {
-    const timestamp = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000)
-    const baseValue = (productArea.chi - 50) / 100 // Convert CHI to sentiment scale
-    return {
-      timestamp,
-      [productArea.name]: baseValue + (Math.random() - 0.5) * 0.3,
-    }
-  })
+  // Use detail data if available, otherwise use basic product area data
+  const displayData = detailData || productArea
+
+  // Convert sentiment timeline to chart format
+  const areasentimentData = detailData?.sentimentTimeline.map((point) => ({
+    timestamp: new Date(point.timestamp),
+    [productArea.name]: point.sentiment,
+  })) || []
 
   const getTrendIcon = () => {
     if (productArea.trend > 0)
@@ -59,46 +99,27 @@ export function ProductAreaDetail({
     return 'No change vs last hour'
   }
 
-  // Mock metrics
+  // Real metrics from API
   const metrics = [
     {
       label: 'Active Signals',
-      value: productArea.signalCount,
-      change: productArea.trend,
+      value: displayData.signalCount,
+      change: displayData.trend,
       icon: AlertCircle,
+      suffix: '',
     },
     {
-      label: 'Resolved Issues',
-      value: Math.floor(productArea.signalCount * 0.6),
-      change: 12,
+      label: 'Improved Issues',
+      value: detailData?.resolvedCount || 0,
+      change: 0, // We don't have historical data for change yet
       icon: CheckCircle2,
-    },
-    {
-      label: 'Avg Response Time',
-      value: '2.3h',
-      change: -15,
-      icon: TrendingDown,
+      suffix: '',
+      description: 'Topics showing sentiment improvement',
     },
   ]
 
-  // Mock top issues for this area
-  const topIssues = [
-    {
-      topic: `${productArea.name} connectivity issues`,
-      intensity: 85,
-      sentiment: -0.7,
-    },
-    {
-      topic: `Slow ${productArea.name.toLowerCase()} performance`,
-      intensity: 67,
-      sentiment: -0.5,
-    },
-    {
-      topic: `${productArea.name} feature requests`,
-      intensity: 45,
-      sentiment: 0.2,
-    },
-  ]
+  // Real top issues from API
+  const topIssues = detailData?.topIssues || []
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -161,54 +182,67 @@ export function ProductAreaDetail({
 
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 gap-4">
-            {metrics.map((metric, index) => {
-              const Icon = metric.icon
-              return (
-                <Card
-                  key={index}
-                  className="border-0 shadow-lg bg-gradient-to-r from-white to-gray-50/50 hover:shadow-xl transition-all hover:scale-105"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="p-3 rounded-xl shadow-md"
-                        style={{
-                          backgroundColor: `${productArea.color}15`,
-                        }}
-                      >
-                        <Icon
-                          className="h-6 w-6"
-                          style={{ color: productArea.color }}
-                        />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-xs font-medium text-tmobile-gray-600">
-                          {metric.label}
-                        </p>
-                        <div className="flex items-baseline gap-2">
-                          <p className="text-2xl font-bold text-tmobile-black">
-                            {metric.value}
+            {loading ? (
+              <div className="flex items-center justify-center p-8 text-tmobile-gray-500">
+                Loading metrics...
+              </div>
+            ) : (
+              metrics.map((metric, index) => {
+                const Icon = metric.icon
+                return (
+                  <Card
+                    key={index}
+                    className="border-0 shadow-lg bg-gradient-to-r from-white to-gray-50/50 hover:shadow-xl transition-all hover:scale-105"
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="p-3 rounded-xl shadow-md"
+                          style={{
+                            backgroundColor: `${productArea.color}15`,
+                          }}
+                        >
+                          <Icon
+                            className="h-6 w-6"
+                            style={{ color: productArea.color }}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-xs font-medium text-tmobile-gray-600">
+                            {metric.label}
                           </p>
-                          <Badge
-                            variant="outline"
-                            className={
-                              metric.change > 0
-                                ? 'text-green-600 border-green-200 bg-green-50'
-                                : metric.change < 0
-                                ? 'text-red-600 border-red-200 bg-red-50'
-                                : 'text-gray-600 border-gray-200 bg-gray-50'
-                            }
-                          >
-                            {metric.change > 0 ? '+' : ''}
-                            {metric.change}%
-                          </Badge>
+                          {metric.description && (
+                            <p className="text-[10px] text-tmobile-gray-400">
+                              {metric.description}
+                            </p>
+                          )}
+                          <div className="flex items-baseline gap-2">
+                            <p className="text-2xl font-bold text-tmobile-black">
+                              {metric.value}{metric.suffix}
+                            </p>
+                            {metric.change !== 0 && (
+                              <Badge
+                                variant="outline"
+                                className={
+                                  metric.change > 0
+                                    ? 'text-green-600 border-green-200 bg-green-50'
+                                    : metric.change < 0
+                                    ? 'text-red-600 border-red-200 bg-red-50'
+                                    : 'text-gray-600 border-gray-200 bg-gray-50'
+                                }
+                              >
+                                {metric.change > 0 ? '+' : ''}
+                                {metric.change}%
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                    </CardContent>
+                  </Card>
+                )
+              })
+            )}
             </div>
           </div>
 
@@ -246,41 +280,56 @@ export function ProductAreaDetail({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {topIssues.map((issue, index) => (
-                  <div
-                    key={index}
-                    className="relative p-5 rounded-xl bg-gradient-to-r from-white via-gray-50/50 to-white border-l-4 shadow-md hover:shadow-lg transition-all hover:translate-x-1"
-                    style={{ borderLeftColor: productArea.color }}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-bold text-tmobile-black flex-1">
-                        {issue.topic}
-                      </h4>
-                      <Badge
-                        variant="outline"
-                        className="font-bold"
-                        style={{
-                          borderColor: productArea.color,
-                          color: productArea.color,
-                          backgroundColor: `${productArea.color}10`,
-                        }}
-                      >
-                        Intensity: {issue.intensity}
-                      </Badge>
-                    </div>
-                    <Badge
-                      className={
-                        issue.sentiment >= 0
-                          ? 'text-green-700 bg-green-50 border border-green-200'
-                          : 'text-red-700 bg-red-50 border border-red-200'
-                      }
+              {loading ? (
+                <div className="flex items-center justify-center p-8 text-tmobile-gray-500">
+                  Loading issues...
+                </div>
+              ) : topIssues.length === 0 ? (
+                <div className="flex items-center justify-center p-8 text-tmobile-gray-500">
+                  No issues found in the last 24 hours
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {topIssues.map((issue, index) => (
+                    <div
+                      key={index}
+                      className="relative p-5 rounded-xl bg-gradient-to-r from-white via-gray-50/50 to-white border-l-4 shadow-md hover:shadow-lg transition-all hover:translate-x-1"
+                      style={{ borderLeftColor: productArea.color }}
                     >
-                      Sentiment: {issue.sentiment.toFixed(2)}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="font-bold text-tmobile-black flex-1">
+                          {issue.topic}
+                        </h4>
+                        <Badge
+                          variant="outline"
+                          className="font-bold"
+                          style={{
+                            borderColor: productArea.color,
+                            color: productArea.color,
+                            backgroundColor: `${productArea.color}10`,
+                          }}
+                        >
+                          Intensity: {issue.intensity}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge
+                          className={
+                            issue.sentiment >= 0
+                              ? 'text-green-700 bg-green-50 border border-green-200'
+                              : 'text-red-700 bg-red-50 border border-red-200'
+                          }
+                        >
+                          Sentiment: {issue.sentiment.toFixed(2)}
+                        </Badge>
+                        <Badge variant="outline" className="text-tmobile-gray-600">
+                          {issue.sourceCount} {issue.sourceCount === 1 ? 'source' : 'sources'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
