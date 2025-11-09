@@ -39,12 +39,28 @@ interface SourceData {
   value: number
 }
 
+interface OutageSummary {
+  totalReports: number
+  affectedCities: number
+  criticalCount: number
+  highCount: number
+  mediumCount?: number
+  lowCount?: number
+  status: string
+}
+
+interface OutageData {
+  data: unknown[]
+  summary: OutageSummary
+}
+
 interface DashboardContentProps {
   overallCHI: number
   productAreas: ProductArea[]
   emergingIssues: Issue[]
   sentimentData: DataPoint[]
   sourceData: SourceData[]
+  outageData?: OutageData
 }
 
 export function DashboardContent({
@@ -53,6 +69,7 @@ export function DashboardContent({
   emergingIssues,
   sentimentData,
   sourceData,
+  outageData,
 }: DashboardContentProps) {
   const [selectedProductArea, setSelectedProductArea] = useState<ProductArea | null>(null)
 
@@ -85,6 +102,77 @@ export function DashboardContent({
           </div>
         </div>
       </section>
+
+      {/* Outage Metrics Section */}
+      {outageData && outageData.summary.totalReports > 0 && (
+        <section className="bg-white rounded-2xl shadow-xl p-6 border border-tmobile-gray-200">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-[#E8258E] mb-1">
+                Network Status
+              </h2>
+              <p className="text-sm text-tmobile-gray-600">
+                Real-time outage reports from DownDetector and Outage.Report
+              </p>
+            </div>
+            <div className="text-right">
+              <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${
+                outageData.summary.status === 'Major Outage'
+                  ? 'bg-red-100 text-red-800'
+                  : outageData.summary.status === 'Widespread Issues'
+                  ? 'bg-orange-100 text-orange-800'
+                  : outageData.summary.status === 'Service Degradation'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : outageData.summary.status === 'Minor Issues'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {outageData.summary.status}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="bg-gradient-to-br from-tmobile-magenta/5 to-purple-50 rounded-xl p-4 border border-tmobile-gray-200">
+              <div className="text-sm text-tmobile-gray-600 mb-1">Total Reports</div>
+              <div className="text-2xl font-bold text-[#E8258E]">
+                {outageData.summary.totalReports.toLocaleString()}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
+              <div className="text-sm text-tmobile-gray-600 mb-1">Affected Cities</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {outageData.summary.affectedCities}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border border-red-200">
+              <div className="text-sm text-tmobile-gray-600 mb-1">Critical</div>
+              <div className="text-2xl font-bold text-red-600">
+                {outageData.summary.criticalCount}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl p-4 border border-orange-200">
+              <div className="text-sm text-tmobile-gray-600 mb-1">High</div>
+              <div className="text-2xl font-bold text-orange-600">
+                {outageData.summary.highCount}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+              <div className="text-sm text-tmobile-gray-600 mb-1">View Map</div>
+              <a
+                href="/dashboard/geo"
+                className="inline-flex items-center text-sm font-semibold text-[#E8258E] hover:text-[#C4006D] transition-colors"
+              >
+                Go to GeoMap →
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Product Area Cards Grid */}
       <section>

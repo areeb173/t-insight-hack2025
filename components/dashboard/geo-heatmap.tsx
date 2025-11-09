@@ -1,108 +1,108 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, useMap } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
-// Dynamically import leaflet.heat only on client side
-if (typeof window !== 'undefined') {
-  require('leaflet.heat')
-  
-  // Fix for default marker icons in Next.js
-  delete (L.Icon.Default.prototype as any)._getIconUrl
+if (typeof window !== "undefined") {
+  require("leaflet.heat");
+
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  })
+    iconRetinaUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+    iconUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  });
 }
 
 interface FeedbackPoint {
-  city: string
-  lat: number
-  lng: number
-  sentiment: number
-  intensity: number
+  city: string;
+  lat: number;
+  lng: number;
+  sentiment: number;
+  intensity: number;
 }
 
 interface GeoHeatmapProps {
-  feedback: FeedbackPoint[]
+  feedback: FeedbackPoint[];
 }
 
-// Component to add heat layer to the map
 function HeatLayer({ feedback }: { feedback: FeedbackPoint[] }) {
-  const map = useMap()
-  const heatLayerRef = useRef<L.HeatLayer | null>(null)
+  const map = useMap();
+  const heatLayerRef = useRef<L.HeatLayer | null>(null);
 
   useEffect(() => {
-    if (!map || feedback.length === 0) return
+    if (!map || feedback.length === 0) return;
 
-    // Calculate raw weights - intensity is the PRIMARY factor
-    const rawWeights = feedback.map((point) => {
-      // Intensity gets the most weight (0-100 scale) - this is the main driver
-      const intensityWeight = (point.intensity || 0) * 0.8  // Much stronger!
-      // Sentiment adds secondary variation
-      const sentimentWeight = Math.abs(point.sentiment || 0) * 5  // Stronger sentiment impact
-      return intensityWeight + sentimentWeight
-    })
+    const heatData: [number, number, number][] = feedback.map((point) => {
+      const intensityNorm = (point.intensity || 0) / 100; // 0–1
+      const sentimentNorm = Math.abs(point.sentiment || 0); // 0–1
+      // 75% intensity, 25% sentiment
+      let weight = 0.75 * intensityNorm + 0.25 * sentimentNorm;
 
-    // Find min and max for normalization
-    const minWeight = Math.min(...rawWeights)
-    const maxWeight = Math.max(...rawWeights)
-    const range = maxWeight - minWeight
+      // clamp to 0–1 just in case
+      if (weight < 0) weight = 0;
+      if (weight > 1) weight = 1;
 
-    // Normalize with wider range for better color distinction
-    // This ensures high intensity values really stand out as red
-    const heatData: [number, number, number][] = feedback.map((point, i) => {
-      const normalizedWeight = range > 0 
-        ? 0.15 + ((rawWeights[i] - minWeight) / range) * 0.85  // Scale to 0.15-1.0
-        : 0.5 // Default if all weights are the same
-      
-      return [point.lat, point.lng, normalizedWeight]
-    })
+      return [point.lat, point.lng, weight];
+    });
 
-    // Remove existing heat layer if it exists
+    // remove old layer
     if (heatLayerRef.current) {
-      map.removeLayer(heatLayerRef.current)
+      map.removeLayer(heatLayerRef.current);
     }
 
-    // Create new heat layer with adjusted settings for better visibility
+    // Create heatmap layer using leaflet.heat plugin
+    // Gradient mapping:
+    // 0.0 (Very Low) -> Blue
+    // 0.2 (Low) -> Cyan
+    // 0.4 (Medium) -> Lime/Green
+    // 0.6 (Moderate) -> Yellow
+    // 0.8 (High) -> Orange
+    // 1.0 (Very High) -> Red
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const heatLayer = (L as any).heatLayer(heatData, {
-      radius: 20,        // Slightly reduced for better point distinction
-      blur: 12,         // Slightly reduced for sharper heat zones
-      maxZoom: 17,
+      max: 1, // force 1.0 to be the "hottest"
+      minOpacity: 0.4, // make colors actually show
+      radius: 28, // a bit smaller so red is visible
+      blur: 15,
+      maxZoom: 12,
       gradient: {
-        0.0: 'blue',    // Low intensity
-        0.2: 'cyan',    // Low-medium
-        0.4: 'lime',    // Medium-low
-        0.6: 'yellow',  // Medium
-        0.8: 'orange',  // Medium-high
-        1.0: 'red',      // High intensity
+        0.0: "blue",
+        0.2: "cyan",
+        0.4: "lime",
+        0.6: "yellow",
+        0.8: "orange",
+        1.0: "red",
       },
-    })
+    });
 
-    heatLayer.addTo(map)
-    heatLayerRef.current = heatLayer
+    heatLayer.addTo(map);
+    heatLayerRef.current = heatLayer;
 
-    // Fit bounds to show all points
+    // fit to data
     if (heatData.length > 0) {
-      const bounds = L.latLngBounds(heatData.map(([lat, lng]) => [lat, lng] as [number, number]))
-      map.fitBounds(bounds, { padding: [50, 50] })
+      const bounds = L.latLngBounds(
+        heatData.map(([lat, lng]) => [lat, lng] as [number, number])
+      );
+      map.fitBounds(bounds, { padding: [50, 50] });
     }
 
     return () => {
       if (heatLayerRef.current) {
-        map.removeLayer(heatLayerRef.current)
+        map.removeLayer(heatLayerRef.current);
       }
-    }
-  }, [map, feedback])
+    };
+  }, [map, feedback]);
 
-  return null
+  return null;
 }
 
 export function GeoHeatmap({ feedback }: GeoHeatmapProps) {
-  // Filter out invalid coordinates
   const validFeedback = feedback.filter(
     (point) =>
       point.lat != null &&
@@ -113,19 +113,21 @@ export function GeoHeatmap({ feedback }: GeoHeatmapProps) {
       point.lat <= 90 &&
       point.lng >= -180 &&
       point.lng <= 180
-  )
+  );
 
   if (validFeedback.length === 0) {
     return (
       <div className="h-[500px] flex items-center justify-center bg-tmobile-gray-50 rounded-2xl border border-tmobile-gray-200">
         <div className="text-center">
-          <p className="text-tmobile-gray-600 text-lg mb-2">No location data available</p>
+          <p className="text-tmobile-gray-600 text-lg mb-2">
+            No location data available
+          </p>
           <p className="text-tmobile-gray-500 text-sm">
             Submit feedback with location data to see the heatmap
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -133,7 +135,7 @@ export function GeoHeatmap({ feedback }: GeoHeatmapProps) {
       <MapContainer
         center={[37.8, -96]}
         zoom={4}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: "100%", width: "100%" }}
         scrollWheelZoom={true}
       >
         <TileLayer
@@ -143,6 +145,5 @@ export function GeoHeatmap({ feedback }: GeoHeatmapProps) {
         <HeatLayer feedback={validFeedback} />
       </MapContainer>
     </div>
-  )
+  );
 }
-
