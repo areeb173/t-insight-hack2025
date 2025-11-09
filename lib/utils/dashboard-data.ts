@@ -243,14 +243,43 @@ export async function getEmergingIssues(limit: number = 10, timeWindowHours: num
 }
 
 /**
- * Get 24-hour sentiment timeline with hourly buckets by product area
+ * Get sentiment timeline with configurable time range
+ * Supports 24h (hourly), 7d (daily), and 30d (daily) buckets
  */
-export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
+export async function getSentimentTimeline(range: '24h' | '7d' | '30d' = '24h'): Promise<SentimentDataPoint[]> {
   try {
     const supabase = createServiceClient();
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    
+    // Calculate time window based on range
+    let hoursAgo: number;
+    let bucketSizeHours: number;
+    let bucketCount: number;
+    
+    switch (range) {
+      case '24h':
+        hoursAgo = 24;
+        bucketSizeHours = 1; // Hourly buckets
+        bucketCount = 24;
+        break;
+      case '7d':
+        hoursAgo = 24 * 7; // 7 days
+        bucketSizeHours = 24; // Daily buckets
+        bucketCount = 7;
+        break;
+      case '30d':
+        hoursAgo = 24 * 30; // 30 days
+        bucketSizeHours = 24; // Daily buckets
+        bucketCount = 30;
+        break;
+      default:
+        hoursAgo = 24;
+        bucketSizeHours = 1;
+        bucketCount = 24;
+    }
 
-    // Fetch signals from last 24 hours with product area
+    const timeAgo = new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString();
+
+    // Fetch signals from time window with product area
     const { data: signals, error } = await supabase
       .from('signals')
       .select(`
@@ -259,16 +288,16 @@ export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
         product_area_id,
         product_areas (name)
       `)
-      .gte('detected_at', twentyFourHoursAgo)
+      .gte('detected_at', timeAgo)
       .order('detected_at', { ascending: true });
 
     if (error || !signals) {
       console.error('Error fetching sentiment timeline:', error);
-      return generateEmpty24HourTimeline();
+      return generateEmptyTimeline(range);
     }
 
-    // Group by hour and product area
-    const hourlyData = new Map<string, {
+    // Group by bucket and product area
+    const bucketData = new Map<string, {
       network: number[];
       mobileApp: number[];
       billing: number[];
@@ -276,12 +305,24 @@ export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
     }>();
 
     for (const signal of signals) {
-      const hour = new Date(signal.detected_at).setMinutes(0, 0, 0);
-      const hourKey = new Date(hour).toISOString();
-      const productArea = (signal.product_areas as any)?.name || '';
+      const signalDate = new Date(signal.detected_at);
+      
+      // Calculate bucket key based on range
+      let bucketKey: string;
+      if (range === '24h') {
+        // Hourly buckets
+        const bucketDate = new Date(signalDate);
+        bucketDate.setMinutes(0, 0, 0);
+        bucketKey = bucketDate.toISOString();
+      } else {
+        // Daily buckets for 7d and 30d
+        const bucketDate = new Date(signalDate);
+        bucketDate.setHours(0, 0, 0, 0);
+        bucketKey = bucketDate.toISOString();
+      }
 
-      if (!hourlyData.has(hourKey)) {
-        hourlyData.set(hourKey, {
+      if (!bucketData.has(bucketKey)) {
+        bucketData.set(bucketKey, {
           network: [],
           mobileApp: [],
           billing: [],
@@ -289,22 +330,23 @@ export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
         });
       }
 
-      const hourData = hourlyData.get(hourKey)!;
+      const bucket = bucketData.get(bucketKey)!;
       const sentiment = signal.sentiment || 0;
+      const productArea = (signal.product_areas as any)?.name || '';
 
       // Map to appropriate product area
       switch (productArea) {
         case 'Network':
-          hourData.network.push(sentiment);
+          bucket.network.push(sentiment);
           break;
         case 'Mobile App':
-          hourData.mobileApp.push(sentiment);
+          bucket.mobileApp.push(sentiment);
           break;
         case 'Billing':
-          hourData.billing.push(sentiment);
+          bucket.billing.push(sentiment);
           break;
         case 'Home Internet':
-          hourData.homeInternet.push(sentiment);
+          bucket.homeInternet.push(sentiment);
           break;
       }
     }
@@ -312,13 +354,23 @@ export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
     // Convert to timeline array with averages
     const timeline: SentimentDataPoint[] = [];
 
-    // Generate 24 hour buckets
-    for (let i = 23; i >= 0; i--) {
-      const timestamp = new Date(Date.now() - i * 60 * 60 * 1000);
-      timestamp.setMinutes(0, 0, 0);
-      const hourKey = timestamp.toISOString();
+    // Generate buckets
+    for (let i = bucketCount - 1; i >= 0; i--) {
+      let timestamp: Date;
+      
+      if (range === '24h') {
+        // Hourly buckets
+        timestamp = new Date(Date.now() - i * 60 * 60 * 1000);
+        timestamp.setMinutes(0, 0, 0);
+      } else {
+        // Daily buckets
+        timestamp = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+        timestamp.setHours(0, 0, 0, 0);
+      }
+      
+      const bucketKey = timestamp.toISOString();
 
-      const hourData = hourlyData.get(hourKey) || {
+      const bucket = bucketData.get(bucketKey) || {
         network: [],
         mobileApp: [],
         billing: [],
@@ -327,17 +379,17 @@ export async function getSentimentTimeline(): Promise<SentimentDataPoint[]> {
 
       timeline.push({
         timestamp,
-        network: average(hourData.network),
-        mobileApp: average(hourData.mobileApp),
-        billing: average(hourData.billing),
-        homeInternet: average(hourData.homeInternet),
+        network: average(bucket.network),
+        mobileApp: average(bucket.mobileApp),
+        billing: average(bucket.billing),
+        homeInternet: average(bucket.homeInternet),
       });
     }
 
     return timeline;
   } catch (error) {
     console.error('Error getting sentiment timeline:', error);
-    return generateEmpty24HourTimeline();
+    return generateEmptyTimeline(range);
   }
 }
 
@@ -392,14 +444,40 @@ function average(arr: number[]): number {
 }
 
 /**
- * Helper: Generate empty 24-hour timeline with neutral sentiment
+ * Helper: Generate empty timeline with neutral sentiment based on range
  */
-function generateEmpty24HourTimeline(): SentimentDataPoint[] {
+function generateEmptyTimeline(range: '24h' | '7d' | '30d' = '24h'): SentimentDataPoint[] {
   const timeline: SentimentDataPoint[] = [];
 
-  for (let i = 23; i >= 0; i--) {
-    const timestamp = new Date(Date.now() - i * 60 * 60 * 1000);
-    timestamp.setMinutes(0, 0, 0);
+  let bucketCount: number;
+  let bucketSizeMs: number;
+
+  switch (range) {
+    case '24h':
+      bucketCount = 24;
+      bucketSizeMs = 60 * 60 * 1000; // 1 hour
+      break;
+    case '7d':
+      bucketCount = 7;
+      bucketSizeMs = 24 * 60 * 60 * 1000; // 1 day
+      break;
+    case '30d':
+      bucketCount = 30;
+      bucketSizeMs = 24 * 60 * 60 * 1000; // 1 day
+      break;
+    default:
+      bucketCount = 24;
+      bucketSizeMs = 60 * 60 * 1000;
+  }
+
+  for (let i = bucketCount - 1; i >= 0; i--) {
+    const timestamp = new Date(Date.now() - i * bucketSizeMs);
+    
+    if (range === '24h') {
+      timestamp.setMinutes(0, 0, 0);
+    } else {
+      timestamp.setHours(0, 0, 0, 0);
+    }
 
     timeline.push({
       timestamp,

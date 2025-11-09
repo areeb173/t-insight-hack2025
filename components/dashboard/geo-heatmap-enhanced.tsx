@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, useMap, CircleMarker, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMap,
+  CircleMarker,
+  Popup,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -33,13 +39,13 @@ interface OutagePoint {
   lat: number;
   lng: number;
   reportCount: number;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   problemType: string;
   source: string;
   details: string;
 }
 
-type MapView = 'feedback' | 'outage';
+type MapView = "feedback" | "outage";
 
 interface GeoHeatmapEnhancedProps {
   feedback: FeedbackPoint[];
@@ -48,10 +54,10 @@ interface GeoHeatmapEnhancedProps {
 
 // Color mapping for outage severity
 const SEVERITY_COLORS = {
-  critical: '#DC2626', // red-600
-  high: '#F97316', // orange-500
-  medium: '#FBBF24', // yellow-400
-  low: '#60A5FA', // blue-400
+  critical: "#DC2626", // red-600
+  high: "#F97316", // orange-500
+  medium: "#FBBF24", // yellow-400
+  low: "#60A5FA", // blue-400
 };
 
 function HeatLayer({ feedback }: { feedback: FeedbackPoint[] }) {
@@ -145,23 +151,30 @@ function OutageMarkers({ outages }: { outages: OutagePoint[] }) {
           >
             <Popup>
               <div className="p-2 min-w-[200px]">
-                <h3 className="font-bold text-lg mb-1">{outage.city}, {outage.state}</h3>
+                <h3 className="font-bold text-lg mb-1">
+                  {outage.city}, {outage.state}
+                </h3>
                 <div className="space-y-1 text-sm">
                   <div>
                     <span className="font-medium">Reports:</span>{" "}
-                    <span className="text-tmobile-magenta font-semibold">{outage.reportCount}</span>
+                    <span className="text-tmobile-magenta font-semibold">
+                      {outage.reportCount}
+                    </span>
                   </div>
                   <div>
                     <span className="font-medium">Severity:</span>{" "}
                     <span
                       className="px-2 py-0.5 rounded text-white text-xs font-medium"
-                      style={{ backgroundColor: SEVERITY_COLORS[outage.severity] }}
+                      style={{
+                        backgroundColor: SEVERITY_COLORS[outage.severity],
+                      }}
                     >
                       {outage.severity.toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <span className="font-medium">Issue:</span> {outage.problemType}
+                    <span className="font-medium">Issue:</span>{" "}
+                    {outage.problemType}
                   </div>
                   <div>
                     <span className="font-medium">Source:</span> {outage.source}
@@ -179,8 +192,11 @@ function OutageMarkers({ outages }: { outages: OutagePoint[] }) {
   );
 }
 
-export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhancedProps) {
-  const [mapView, setMapView] = useState<MapView>('feedback');
+export function GeoHeatmapEnhanced({
+  feedback,
+  onViewChange,
+}: GeoHeatmapEnhancedProps) {
+  const [mapView, setMapView] = useState<MapView>("feedback");
   const [outages, setOutages] = useState<OutagePoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,22 +220,22 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
 
   // Fetch outage data when switching to outage view
   useEffect(() => {
-    if (mapView === 'outage' && outages.length === 0) {
+    if (mapView === "outage" && outages.length === 0) {
       setLoading(true);
       setError(null);
 
-      fetch('/api/dashboard/outages')
-        .then(res => res.json())
-        .then(data => {
+      fetch("/api/dashboard/outages")
+        .then((res) => res.json())
+        .then((data) => {
           if (data.success) {
             setOutages(data.data);
           } else {
-            setError(data.message || 'Failed to load outage data');
+            setError(data.message || "Failed to load outage data");
           }
         })
-        .catch(err => {
-          console.error('Error fetching outage data:', err);
-          setError('Failed to load outage data');
+        .catch((err) => {
+          console.error("Error fetching outage data:", err);
+          setError("Failed to load outage data");
         })
         .finally(() => {
           setLoading(false);
@@ -227,22 +243,23 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
     }
   }, [mapView, outages.length]);
 
-  const hasData = (mapView === 'feedback' && validFeedback.length > 0) ||
-                  (mapView === 'outage' && outages.length > 0);
+  const hasData =
+    (mapView === "feedback" && validFeedback.length > 0) ||
+    (mapView === "outage" && outages.length > 0);
 
-  if (!hasData && mapView === 'feedback') {
+  if (!hasData && mapView === "feedback") {
     return (
       <div className="space-y-4">
         {/* View Selector */}
         <div className="flex gap-2 bg-white/50 p-1 rounded-lg border border-tmobile-gray-200 w-fit">
           <button
-            onClick={() => handleViewChange('feedback')}
+            onClick={() => handleViewChange("feedback")}
             className="px-4 py-2 rounded-md text-sm font-medium transition-all bg-[#E8258E] text-white shadow-sm"
           >
             Customer Feedback
           </button>
           <button
-            onClick={() => handleViewChange('outage')}
+            onClick={() => handleViewChange("outage")}
             className="px-4 py-2 rounded-md text-sm font-medium transition-all text-tmobile-gray-600 hover:bg-white/80"
           >
             Outage Map
@@ -268,21 +285,21 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
       {/* View Selector */}
       <div className="flex gap-2 bg-white/50 p-1 rounded-lg border border-tmobile-gray-200 w-fit">
         <button
-          onClick={() => handleViewChange('feedback')}
+          onClick={() => handleViewChange("feedback")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            mapView === 'feedback'
-              ? 'bg-[#E8258E] text-white shadow-sm'
-              : 'text-tmobile-gray-600 hover:bg-white/80'
+            mapView === "feedback"
+              ? "bg-[#E8258E] text-white shadow-sm"
+              : "text-tmobile-gray-600 hover:bg-white/80"
           }`}
         >
           Customer Feedback
         </button>
         <button
-          onClick={() => handleViewChange('outage')}
+          onClick={() => handleViewChange("outage")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            mapView === 'outage'
-              ? 'bg-[#E8258E] text-white shadow-sm'
-              : 'text-tmobile-gray-600 hover:bg-white/80'
+            mapView === "outage"
+              ? "bg-[#E8258E] text-white shadow-sm"
+              : "text-tmobile-gray-600 hover:bg-white/80"
           }`}
         >
           Outage Map
@@ -317,8 +334,8 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {mapView === 'feedback' && <HeatLayer feedback={validFeedback} />}
-            {mapView === 'outage' && <OutageMarkers outages={outages} />}
+            {mapView === "feedback" && <HeatLayer feedback={validFeedback} />}
+            {mapView === "outage" && <OutageMarkers outages={outages} />}
           </MapContainer>
         )}
       </div>
@@ -326,9 +343,11 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
       {/* Legend */}
       {!loading && !error && (
         <div className="flex items-center gap-6 text-sm">
-          {mapView === 'feedback' ? (
+          {mapView === "feedback" ? (
             <>
-              <span className="font-medium text-tmobile-gray-700">Intensity Scale:</span>
+              <span className="font-medium text-tmobile-gray-700">
+                Intensity Scale:
+              </span>
               <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-blue-500 rounded shadow-sm"></div>
                 <span className="text-xs text-tmobile-gray-600">Very Low</span>
@@ -356,21 +375,35 @@ export function GeoHeatmapEnhanced({ feedback, onViewChange }: GeoHeatmapEnhance
             </>
           ) : (
             <>
-              <span className="font-medium text-tmobile-gray-700">Outage Severity:</span>
+              <span className="font-medium text-tmobile-gray-700">
+                Outage Severity:
+              </span>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded shadow-sm" style={{ backgroundColor: SEVERITY_COLORS.low }}></div>
+                <div
+                  className="w-4 h-4 rounded shadow-sm"
+                  style={{ backgroundColor: SEVERITY_COLORS.low }}
+                ></div>
                 <span className="text-xs text-tmobile-gray-600">Low</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded shadow-sm" style={{ backgroundColor: SEVERITY_COLORS.medium }}></div>
+                <div
+                  className="w-4 h-4 rounded shadow-sm"
+                  style={{ backgroundColor: SEVERITY_COLORS.medium }}
+                ></div>
                 <span className="text-xs text-tmobile-gray-600">Medium</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded shadow-sm" style={{ backgroundColor: SEVERITY_COLORS.high }}></div>
+                <div
+                  className="w-4 h-4 rounded shadow-sm"
+                  style={{ backgroundColor: SEVERITY_COLORS.high }}
+                ></div>
                 <span className="text-xs text-tmobile-gray-600">High</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded shadow-sm" style={{ backgroundColor: SEVERITY_COLORS.critical }}></div>
+                <div
+                  className="w-4 h-4 rounded shadow-sm"
+                  style={{ backgroundColor: SEVERITY_COLORS.critical }}
+                ></div>
                 <span className="text-xs text-tmobile-gray-600">Critical</span>
               </div>
               <span className="text-xs text-tmobile-gray-500 ml-4">

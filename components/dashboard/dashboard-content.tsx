@@ -123,6 +123,9 @@ export function DashboardContent({
   const [isLoadingInsights, setIsLoadingInsights] = useState(false)
   const [insightsError, setInsightsError] = useState<string | null>(null)
   const [isSavingOpportunity, setIsSavingOpportunity] = useState(false)
+  const [sentimentTimeRange, setSentimentTimeRange] = useState<'24h' | '7d' | '30d'>('24h')
+  const [sentimentDataState, setSentimentDataState] = useState<DataPoint[]>(sentimentData)
+  const [originalSentimentData] = useState<DataPoint[]>(sentimentData) // Store original 24h data
 
   useEffect(() => {
     // Mark as ready after component mounts and data is available
@@ -131,6 +134,47 @@ export function DashboardContent({
     }, 100)
     return () => clearTimeout(timer)
   }, [])
+
+  // Fetch sentiment data when time range changes
+  useEffect(() => {
+    // If switching back to 24h, restore original data
+    if (sentimentTimeRange === '24h') {
+      setSentimentDataState(originalSentimentData)
+      return
+    }
+
+    const fetchSentimentData = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+        const response = await fetch(`${baseUrl}/api/dashboard/sentiment-timeline?range=${sentimentTimeRange}`, {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.timeline && Array.isArray(data.timeline)) {
+            // Convert timestamp strings to Date objects
+            const timeline = data.timeline.map((point: any) => ({
+              ...point,
+              timestamp: new Date(point.timestamp),
+            }))
+            setSentimentDataState(timeline)
+          } else {
+            console.warn('No timeline data received')
+          }
+        } else {
+          console.error('Failed to fetch sentiment timeline:', response.statusText)
+        }
+      } catch (error) {
+        console.error('Error fetching sentiment timeline:', error)
+      }
+    }
+
+    fetchSentimentData()
+  }, [sentimentTimeRange, originalSentimentData])
 
   const handleProductAreaClick = (areaName: string) => {
     const area = productAreas.find((a) => a.name === areaName)
@@ -545,7 +589,11 @@ export function DashboardContent({
       {/* Analytics Row */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <IssueVelocityChart data={mockVelocityData} />
-        <SentimentTimeline data={sentimentData} />
+        <SentimentTimeline 
+          data={sentimentDataState} 
+          timeRange={sentimentTimeRange}
+          onTimeRangeChange={(range) => setSentimentTimeRange(range)}
+        />
       </section>
 
       {/* Product Area Detail Sheet */}

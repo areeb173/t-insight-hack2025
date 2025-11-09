@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       calculateCHI(timeWindowHours * 60), // Overall CHI from time window
       getProductAreaMetrics(timeWindowHours),
       getEmergingIssues(10, timeWindowHours), // Top 10 emerging issues
-      getSentimentTimeline(),
+      getSentimentTimeline('24h'),
       getSourceBreakdown(),
     ]);
 
