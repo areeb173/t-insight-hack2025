@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       getPositiveTrendsCount(), // Count of improving product areas
       getRealtimeSignals(20), // Recent signals for activity feed
       getIssueVelocityByProductArea(), // Issue velocity by product area
-      getSentimentDistribution(24), // Sentiment distribution (24h)
+      getSentimentDistribution(null), // Sentiment distribution (all signals)
     ]);
 
     // Calculate previous CHI score for display

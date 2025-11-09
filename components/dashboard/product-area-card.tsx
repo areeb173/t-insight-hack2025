@@ -3,6 +3,8 @@
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CHIGauge } from './chi-gauge'
+import { cardVariants, getProductAreaAccent } from '@/lib/utils/card-styles'
+import { cn } from '@/lib/utils'
 
 interface ProductAreaCardProps {
   name: string
@@ -41,12 +43,13 @@ export function ProductAreaCard({
 
   return (
     <Card
-      className="relative overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+      className={cn(cardVariants.interactive, 'relative overflow-hidden')}
+      style={getProductAreaAccent(color)}
       onClick={onClick}
     >
       {/* Gradient Background */}
       <div
-        className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity"
+        className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none"
         style={{
           background: `linear-gradient(135deg, ${color} 0%, transparent 100%)`,
         }}
@@ -59,7 +62,7 @@ export function ProductAreaCard({
       />
 
       {/* Content */}
-      <div className="relative bg-white/95 backdrop-blur-sm">
+      <div className="relative">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold text-tmobile-black flex items-center justify-between">
             <span>{name}</span>

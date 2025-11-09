@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
 :root {
+  /* Animation & Transition Timing */
+  --transition-fast: 150ms;
+  --transition-base: 200ms;
+  --transition-slow: 300ms;
+  --transition-slower: 500ms;
+  --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
   /* T-Mobile Brand Colors */
   --tmobile-magenta: #E8258E;
   --tmobile-magenta-dark: #D01A7A;
@@ -80,6 +89,8 @@
   --color-tmobile-magenta: var(--tmobile-magenta);
   --color-tmobile-magenta-dark: var(--tmobile-magenta-dark);
   --color-tmobile-magenta-light: var(--tmobile-magenta-light);
+  --color-tmobile-white: var(--tmobile-white);
+  --color-tmobile-black: var(--tmobile-black);
   --color-tmobile-gray-50: var(--tmobile-gray-50);
   --color-tmobile-gray-100: var(--tmobile-gray-100);
   --color-tmobile-gray-200: var(--tmobile-gray-200);
@@ -109,10 +120,149 @@ body {
 }
 
 @layer base {
+  /* Enhanced Focus States for Accessibility */
+  *:focus-visible {
+    outline: none;
+    @apply ring-2 ring-[#E8258E] ring-offset-2 ring-offset-white;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    @apply ring-2 ring-[#E8258E] ring-offset-2 transition-shadow;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply ring-2 ring-[#E8258E]/30 border-[#E8258E] transition-all;
+  }
+
+  /* Headings */
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     letter-spacing: -0.02em;
   }
+
+  /* Typography Scale - Standardized across app */
+  .text-hero {
+    @apply text-4xl md:text-5xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-page-title {
+    @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-section-title {
+    @apply text-2xl font-bold tracking-tight leading-snug;
+  }
+
+  .text-section-subtitle {
+    @apply text-base text-tmobile-gray-700 leading-relaxed;
+  }
+
+  .text-card-title {
+    @apply text-lg font-semibold tracking-tight leading-snug text-tmobile-black;
+  }
+
+  .text-body {
+    @apply text-base leading-relaxed text-tmobile-gray-700;
+  }
+
+  .text-body-emphasis {
+    @apply text-base leading-relaxed text-tmobile-gray-900 font-medium;
+  }
+
+  .text-small {
+    @apply text-sm leading-normal text-tmobile-gray-700;
+  }
+
+  .text-small-emphasis {
+    @apply text-sm leading-normal text-tmobile-gray-800 font-medium;
+  }
+
+  .text-xs-label {
+    @apply text-xs leading-tight text-tmobile-gray-600;
+  }
+
+  /* Spacing Scale - Standardized across app */
+  .spacing-section {
+    @apply space-y-8;
+  }
+
+  .spacing-card-group {
+    @apply gap-6;
+  }
+
+  .spacing-card-internal {
+    @apply space-y-4;
+  }
+
+  .spacing-compact {
+    @apply space-y-3;
+  }
+
+  .spacing-tight {
+    @apply space-y-2;
+  }
+
+  /* Padding Scale */
+  .padding-page {
+    @apply px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .padding-card {
+    @apply p-6;
+  }
+
+  .padding-card-compact {
+    @apply p-4;
+  }
+
+  .padding-section {
+    @apply py-6;
+  }
+}
+
+/* Transition Helper Classes */
+.transition-smooth {
+  transition: all var(--transition-base) var(--ease-smooth);
+}
+
+.transition-smooth-slow {
+  transition: all var(--transition-slow) var(--ease-smooth);
+}
+
+.transition-colors-smooth {
+  transition: color var(--transition-base) var(--ease-smooth),
+              background-color var(--transition-base) var(--ease-smooth),
+              border-color var(--transition-base) var(--ease-smooth);
+}
+
+.transition-transform-smooth {
+  transition: transform var(--transition-base) var(--ease-smooth);
+}
+
+.transition-bounce {
+  transition: all var(--transition-base) var(--ease-bounce);
+}
+
+/* Hover & Focus Effects */
+.hover-lift {
+  transition: transform var(--transition-base) var(--ease-smooth),
+              box-shadow var(--transition-base) var(--ease-smooth);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.active-press:active {
+  transform: scale(0.98);
 }
 
 /* Animations */
@@ -138,6 +288,17 @@ body {
   }
 }
 
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes pulse-soft {
   0%, 100% {
     opacity: 1;
@@ -147,16 +308,115 @@ body {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes success-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes check-draw {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
 .animate-fade-in {
-  animation: fade-in 0.4s ease-out forwards;
+  animation: fade-in 0.3s ease-out forwards;
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.5s ease-out forwards;
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.4s ease-out forwards;
 }
 
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s var(--ease-bounce) forwards;
+}
+
+.animate-success-pulse {
+  animation: success-pulse 0.4s ease-in-out;
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Button ripple effect container */
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button-ripple:active::after {
+  width: 300px;
+  height: 300px;
 }
 
 /* Leaflet map z-index fixes to prevent navbar overlap */

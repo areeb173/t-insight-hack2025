@@ -55,21 +55,23 @@ export function EmergingIssuesTable({
   })
 
   const getSentimentColor = (sentiment: number) => {
-    if (sentiment >= 0.3) return 'text-green-600 bg-green-50'
-    if (sentiment >= -0.3) return 'text-gray-600 bg-gray-50'
-    return 'text-red-600 bg-red-50'
+    if (sentiment > 0.15) return 'bg-emerald-100 text-emerald-800 border-emerald-300'
+    if (sentiment >= -0.15) return 'bg-slate-100 text-slate-700 border-slate-300'
+    return 'bg-rose-100 text-rose-800 border-rose-300'
   }
 
   const getSentimentLabel = (sentiment: number) => {
-    if (sentiment >= 0.3) return 'Positive'
-    if (sentiment >= -0.3) return 'Neutral'
+    if (sentiment > 0.15) return 'Positive'
+    if (sentiment >= -0.15) return 'Neutral'
     return 'Negative'
   }
 
   return (
     <div className="relative rounded-2xl border-0 bg-gradient-to-br from-white to-gray-50/30 shadow-xl overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-tmobile-magenta/5 to-purple-500/5" />
-      <Table>
+      {/* Horizontal scroll wrapper for mobile */}
+      <div className="overflow-x-auto">
+        <Table>
         <TableHeader>
           <TableRow className="relative bg-gradient-to-r from-tmobile-magenta/5 to-purple-500/5 hover:from-tmobile-magenta/10 hover:to-purple-500/10 border-b-2 border-tmobile-magenta/20">
             <TableHead className="font-semibold text-tmobile-black">
@@ -127,11 +129,16 @@ export function EmergingIssuesTable({
             sortedIssues.map((issue, index) => (
               <TableRow
                 key={issue.id}
+                style={{
+                  animation: 'fade-in 0.3s ease-out forwards',
+                  animationDelay: `${index * 50}ms`,
+                  opacity: 0,
+                }}
                 className={`
                   relative
                   ${index % 2 === 0 ? 'bg-white/80' : 'bg-gray-50/50'}
                   hover:bg-gradient-to-r hover:from-tmobile-magenta/10 hover:to-purple-500/10
-                  transition-all duration-200
+                  transition-colors duration-200
                   border-b border-gray-100/50
                 `}
               >
@@ -149,7 +156,7 @@ export function EmergingIssuesTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getSentimentColor(issue.sentiment)}>
+                  <Badge className={`${getSentimentColor(issue.sentiment)} border`}>
                     {getSentimentLabel(issue.sentiment)} ({issue.sentiment.toFixed(1)})
                   </Badge>
                 </TableCell>
@@ -172,6 +179,7 @@ export function EmergingIssuesTable({
           )}
         </TableBody>
       </Table>
+      </div>
     </div>
   )
 }

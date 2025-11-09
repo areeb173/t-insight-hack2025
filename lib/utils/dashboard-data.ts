@@ -394,28 +394,78 @@ export async function getSentimentTimeline(range: '24h' | '7d' | '30d' = '24h'):
 }
 
 /**
- * Get source breakdown (count of signals by source)
+ * Get source breakdown (count of signals by source) from all signals in the database
  */
 export async function getSourceBreakdown(): Promise<SourceData[]> {
   try {
     const supabase = createServiceClient();
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    // Count signals by source from last 24 hours
-    const { data: signals, error } = await supabase
+    // First, get the total count of signals
+    const { count, error: countError } = await supabase
       .from('signals')
-      .select('source')
-      .gte('detected_at', twentyFourHoursAgo);
+      .select('*', { count: 'exact', head: true });
 
-    if (error || !signals) {
-      console.error('Error fetching source breakdown:', error);
+    if (countError) {
+      console.error('Error counting signals for source breakdown:', countError);
+      return [];
+    }
+
+    // Fetch all signals using pagination (Supabase max is 1000 per request)
+    // Include 'id' along with 'source' to avoid single-column cache issues
+    const pageSize = 1000;
+    const totalPages = Math.ceil((count || 0) / pageSize);
+    const allSignals: Array<{ source: string; id: string }> = [];
+
+    for (let page = 0; page < totalPages; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+
+      // Retry logic for network failures
+      let retries = 3;
+      let success = false;
+
+      while (retries > 0 && !success) {
+        try {
+          const { data, error } = await supabase
+            .from('signals')
+            .select('source, id')
+            .range(from, to);
+
+          if (error) {
+            console.error(`Error fetching signals page ${page} for source breakdown (attempt ${4 - retries}/3):`, error);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+            }
+            continue;
+          }
+
+          if (data) {
+            allSignals.push(...data);
+            success = true;
+          }
+        } catch (err) {
+          console.error(`Exception fetching signals page ${page} for source breakdown:`, err);
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
+
+      if (!success) {
+        console.warn(`Failed to fetch page ${page} for source breakdown after 3 retries, continuing...`);
+      }
+    }
+
+    if (allSignals.length === 0) {
       return [];
     }
 
     // Count by source
     const sourceCounts = new Map<string, number>();
 
-    for (const signal of signals) {
+    for (const signal of allSignals) {
       const source = signal.source;
       sourceCounts.set(source, (sourceCounts.get(source) || 0) + 1);
     }

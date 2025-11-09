@@ -125,26 +125,26 @@ export function determineSeverity(
 /**
  * Get color for RICE score visualization
  * @param score - RICE score
- * @returns Tailwind color class
+ * @returns Tailwind color class (enhanced with better borders)
  */
 export function getRICEColor(score: number): string {
-  if (score >= 100) return 'text-green-600 bg-green-50 border-green-200'
-  if (score >= 50) return 'text-blue-600 bg-blue-50 border-blue-200'
-  if (score >= 20) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-  return 'text-gray-600 bg-gray-50 border-gray-200'
+  if (score >= 100) return 'bg-green-100 text-green-800 border-green-300'
+  if (score >= 50) return 'bg-blue-100 text-blue-800 border-blue-300'
+  if (score >= 20) return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+  return 'bg-gray-100 text-gray-800 border-gray-300'
 }
 
 /**
  * Get severity color class
  * @param severity - Severity level
- * @returns Tailwind color class
+ * @returns Tailwind color class (enhanced with better contrast)
  */
 export function getSeverityColor(severity: 'low' | 'medium' | 'high' | 'critical'): string {
   const colors = {
-    critical: 'bg-red-100 text-red-800 border-red-200',
-    high: 'bg-orange-100 text-orange-800 border-orange-200',
-    medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    low: 'bg-blue-100 text-blue-800 border-blue-200',
+    critical: 'bg-red-100 text-red-800 border-red-300',
+    high: 'bg-orange-100 text-orange-800 border-orange-300',
+    medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    low: 'bg-blue-100 text-blue-800 border-blue-300',
   }
   return colors[severity]
 }
@@ -152,13 +152,13 @@ export function getSeverityColor(severity: 'low' | 'medium' | 'high' | 'critical
 /**
  * Get status color class
  * @param status - Opportunity status
- * @returns Tailwind color class
+ * @returns Tailwind color class (enhanced with better contrast)
  */
 export function getStatusColor(status: 'new' | 'in-progress' | 'done'): string {
   const colors = {
-    'new': 'bg-blue-100 text-blue-800 border-blue-200',
-    'in-progress': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'done': 'bg-green-100 text-green-800 border-green-200',
+    'new': 'bg-blue-100 text-blue-700 border-blue-200',
+    'in-progress': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    'done': 'bg-green-100 text-green-700 border-green-200',
   }
   return colors[status]
 }

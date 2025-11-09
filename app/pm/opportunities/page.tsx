@@ -12,7 +12,8 @@ import { ReleaseNotesGenerator } from '@/components/opportunities/release-notes-
 import { ReleaseNotesDisplay } from '@/components/opportunities/release-notes-display'
 import { Navbar } from '@/components/layout/navbar'
 import { toast } from 'sonner'
-import { Loader2, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Opportunity {
   id: string
@@ -415,8 +416,8 @@ export default function OpportunitiesPage() {
       <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[#E8258E] mb-2">PM Workbench</h1>
-          <p className="text-lg text-tmobile-gray-600">
+          <h1 className="text-page-title text-[#E8258E] mb-2">PM Workbench</h1>
+          <p className="text-section-subtitle">
             Epics and user stories prioritized from customer signals
           </p>
         </div>
@@ -462,8 +463,11 @@ export default function OpportunitiesPage() {
         {/* Loading State */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="h-12 w-12 animate-spin text-[#E8258E] mb-4" />
-            <p className="text-tmobile-gray-600">Loading opportunities...</p>
+            <LoadingSpinner
+              size="xl"
+              variant="gradient"
+              message="Loading opportunities..."
+            />
           </div>
         )}
 
@@ -510,14 +514,16 @@ export default function OpportunitiesPage() {
                 key={epic.id}
                 epic={epic}
                 onViewEvidence={handleViewEvidence}
-                onGeneratePRD={generatingPRD === epic.id ? undefined : handleGeneratePRD}
+                onGeneratePRD={handleGeneratePRD}
                 onViewPRD={handleViewPRD}
-                onGenerateStories={generatingStories === epic.id ? undefined : handleGenerateStories}
+                onGenerateStories={handleGenerateStories}
                 onGenerateReleaseNotes={handleGenerateReleaseNotes}
                 onViewReleaseNotes={handleViewReleaseNotes}
                 onUpdateStatus={handleUpdateStatus}
                 onDelete={handleDelete}
                 onViewStoryDetail={handleViewStoryDetail}
+                isGeneratingPRD={generatingPRD === epic.id}
+                isGeneratingStories={generatingStories === epic.id}
               />
             ))}
           </div>

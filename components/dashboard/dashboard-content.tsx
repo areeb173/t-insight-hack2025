@@ -24,6 +24,7 @@ import {
 import { toast } from 'sonner'
 import { Save, ExternalLink } from 'lucide-react'
 import { formatMinutes } from '@/lib/utils/advanced-metrics'
+import { formatSmart, formatChange } from '@/lib/utils/number-format'
 
 interface ProductArea {
   id: string
@@ -450,10 +451,10 @@ export function DashboardContent({
         <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8 p-8">
           {/* CHI Gauge */}
           <div className="lg:col-span-1 flex flex-col items-center justify-center border-r border-tmobile-gray-200">
-            <h2 className="text-2xl font-bold text-[#E8258E] mb-2">
+            <h2 className="text-section-title text-[#E8258E] mb-2">
               Customer Happiness Index
             </h2>
-            <p className="text-xs text-tmobile-gray-600 mb-6">
+            <p className="text-xs-label mb-6">
               Overall sentiment score
             </p>
             <CHIGauge
@@ -469,14 +470,14 @@ export function DashboardContent({
             <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-tmobile-gray-200 hover:shadow-lg transition-shadow">
               <div className="text-xs text-tmobile-gray-600 mb-1">Total Signals</div>
               <div className="text-3xl font-bold text-[#E8258E]">
-                {totalSignals.toLocaleString()}
+                {formatSmart(totalSignals)}
               </div>
-              <div className={`text-xs mt-1 ${
+              <div className={`text-xs mt-1 font-medium ${
                 advancedMetrics.signalTrend.percentageChange >= 0
                   ? 'text-green-600'
                   : 'text-red-600'
               }`}>
-                {advancedMetrics.signalTrend.percentageChange >= 0 ? '↑' : '↓'} {Math.abs(advancedMetrics.signalTrend.percentageChange)}% vs last hour
+                {advancedMetrics.signalTrend.percentageChange >= 0 ? '↑' : '↓'} {Math.abs(advancedMetrics.signalTrend.percentageChange).toFixed(1)}% vs last hour
               </div>
             </div>
 
@@ -553,10 +554,10 @@ export function DashboardContent({
         <section className="bg-white rounded-2xl shadow-xl p-6 border border-tmobile-gray-200">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-[#E8258E] mb-1">
+              <h2 className="text-section-title text-[#E8258E] mb-1">
                 Network Status
               </h2>
-              <p className="text-sm text-tmobile-gray-600">
+              <p className="text-section-subtitle">
                 Real-time outage reports from DownDetector and Outage.Report
               </p>
             </div>
@@ -581,7 +582,7 @@ export function DashboardContent({
             <div className="bg-gradient-to-br from-tmobile-magenta/5 to-purple-50 rounded-xl p-4 border border-tmobile-gray-200">
               <div className="text-sm text-tmobile-gray-600 mb-1">Total Reports</div>
               <div className="text-2xl font-bold text-[#E8258E]">
-                {outageData.summary.totalReports.toLocaleString()}
+                {formatSmart(outageData.summary.totalReports)}
               </div>
             </div>
 
@@ -629,8 +630,8 @@ export function DashboardContent({
       <section>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-[#E8258E]">Product Areas</h2>
-            <p className="text-sm text-tmobile-gray-600 mt-1">
+            <h2 className="text-section-title text-[#E8258E]">Product Areas</h2>
+            <p className="text-section-subtitle mt-1">
               Click any area to drill down into details
             </p>
           </div>
@@ -663,8 +664,8 @@ export function DashboardContent({
       {/* Emerging Issues Table */}
       <section>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-[#E8258E]">Top Emerging Issues</h2>
-          <p className="text-sm text-tmobile-gray-600 mt-1">
+          <h2 className="text-section-title text-[#E8258E]">Top Emerging Issues</h2>
+          <p className="text-section-subtitle mt-1">
             Most impactful issues detected in the last hour
           </p>
         </div>

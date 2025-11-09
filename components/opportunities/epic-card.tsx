@@ -30,6 +30,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from 'lucide-react'
+import { InlineSpinner } from '@/components/ui/loading-spinner'
 import {
   getSeverityColor,
   getStatusColor,
@@ -94,6 +95,9 @@ interface EpicCardProps {
   onUpdateStatus?: (id: string, status: 'new' | 'in-progress' | 'done') => void
   onDelete?: (id: string) => void
   onViewStoryDetail?: (epicId: string, story: UserStory, storyIndex: number) => void
+  isGeneratingPRD?: boolean
+  isGeneratingStories?: boolean
+  isGeneratingReleaseNotes?: boolean
 }
 
 export function EpicCard({
@@ -107,6 +111,9 @@ export function EpicCard({
   onUpdateStatus,
   onDelete,
   onViewStoryDetail,
+  isGeneratingPRD = false,
+  isGeneratingStories = false,
+  isGeneratingReleaseNotes = false,
 }: EpicCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [storiesExpanded, setStoriesExpanded] = useState(true)
@@ -210,7 +217,7 @@ export function EpicCard({
                 {onDelete && (
                   <DropdownMenuItem
                     onClick={() => onDelete(epic.id)}
-                    className="text-red-600 focus:text-red-600"
+                    className="text-red-600 hover:text-red-700 focus:text-red-700 focus:bg-red-50 font-medium"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete Epic
@@ -305,68 +312,63 @@ export function EpicCard({
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* Action Buttons - Clear Hierarchy */}
           <div className="flex flex-wrap gap-2 pt-2">
+            {/* PRIMARY ACTION - Most important button per epic */}
+            {canGenerateReleaseNotes && onGenerateReleaseNotes && (
+              <Button
+                size="sm"
+                onClick={() => onGenerateReleaseNotes(epic.id)}
+                disabled={isGeneratingReleaseNotes}
+                className="text-xs bg-[#E8258E] hover:bg-[#D01A7A] text-white shadow-lg hover:shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingReleaseNotes ? (
+                  <InlineSpinner className="mr-1.5" />
+                ) : (
+                  <Sparkles className="h-3 w-3 mr-1.5" />
+                )}
+                {isGeneratingReleaseNotes ? 'Generating...' : 'Generate Release Notes'}
+              </Button>
+            )}
+
+            {!hasPRD && onGeneratePRD && !canGenerateReleaseNotes && (
+              <Button
+                size="sm"
+                onClick={() => onGeneratePRD(epic.id)}
+                disabled={isGeneratingPRD}
+                className="text-xs bg-[#E8258E] hover:bg-[#D01A7A] text-white shadow-lg hover:shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingPRD ? (
+                  <InlineSpinner className="mr-1.5" />
+                ) : (
+                  <TrendingUp className="h-3 w-3 mr-1.5" />
+                )}
+                {isGeneratingPRD ? 'Generating...' : 'Generate PRD'}
+              </Button>
+            )}
+
+            {/* SECONDARY ACTIONS - Supporting buttons */}
             {onViewEvidence && (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => onViewEvidence(epic.id)}
-                className="text-xs border-[#E8258E]/30 text-[#E8258E] hover:bg-[#E8258E]/10 hover:border-[#E8258E]/50"
+                className="text-xs border-2 border-[#E8258E]/30 text-[#E8258E] hover:border-[#E8258E]/50 hover:bg-[#E8258E]/5 transition-all active:scale-95"
               >
                 <Eye className="h-3 w-3 mr-1.5" />
                 View Evidence
               </Button>
             )}
 
-            {hasPRD ? (
-              onViewPRD && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onViewPRD(epic.id)}
-                  className="text-xs border-blue-500/30 text-blue-600 hover:bg-blue-500/10 hover:border-blue-500/50"
-                >
-                  <FileText className="h-3 w-3 mr-1.5" />
-                  View PRD
-                </Button>
-              )
-            ) : (
-              onGeneratePRD && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onGeneratePRD(epic.id)}
-                  className="text-xs border-purple-500/30 text-purple-600 hover:bg-purple-500/10 hover:border-purple-500/50"
-                >
-                  <TrendingUp className="h-3 w-3 mr-1.5" />
-                  Generate PRD
-                </Button>
-              )
-            )}
-
-            {onGenerateStories && (
+            {hasPRD && onViewPRD && (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onGenerateStories(epic.id)}
-                className="text-xs border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:border-orange-500/50"
+                onClick={() => onViewPRD(epic.id)}
+                className="text-xs border-2 border-[#E8258E]/30 text-[#E8258E] hover:border-[#E8258E]/50 hover:bg-[#E8258E]/5 transition-all active:scale-95"
               >
-                <Lightbulb className="h-3 w-3 mr-1.5" />
-                {hasStories ? 'Regenerate' : 'Generate'} Stories
-              </Button>
-            )}
-
-            {/* Release Notes Button - Show if recovered */}
-            {canGenerateReleaseNotes && onGenerateReleaseNotes && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onGenerateReleaseNotes(epic.id)}
-                className="text-xs border-green-500/30 text-green-600 hover:bg-green-500/10 hover:border-green-500/50 animate-pulse"
-              >
-                <Sparkles className="h-3 w-3 mr-1.5" />
-                Generate Release Notes
+                <FileText className="h-3 w-3 mr-1.5" />
+                View PRD
               </Button>
             )}
 
@@ -375,10 +377,28 @@ export function EpicCard({
                 size="sm"
                 variant="outline"
                 onClick={() => onViewReleaseNotes(epic.id)}
-                className="text-xs border-blue-500/30 text-blue-600 hover:bg-blue-500/10 hover:border-blue-500/50"
+                className="text-xs border-2 border-[#E8258E]/30 text-[#E8258E] hover:border-[#E8258E]/50 hover:bg-[#E8258E]/5 transition-all active:scale-95"
               >
                 <FileText className="h-3 w-3 mr-1.5" />
                 View Release Notes
+              </Button>
+            )}
+
+            {/* TERTIARY ACTIONS - Less prominent */}
+            {onGenerateStories && !canGenerateReleaseNotes && hasPRD && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onGenerateStories(epic.id)}
+                disabled={isGeneratingStories}
+                className="text-xs text-tmobile-gray-700 hover:text-tmobile-gray-900 hover:bg-tmobile-gray-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isGeneratingStories ? (
+                  <InlineSpinner className="mr-1.5" />
+                ) : (
+                  <Lightbulb className="h-3 w-3 mr-1.5" />
+                )}
+                {isGeneratingStories ? 'Generating...' : `${hasStories ? 'Regenerate' : 'Generate'} Stories`}
               </Button>
             )}
           </div>

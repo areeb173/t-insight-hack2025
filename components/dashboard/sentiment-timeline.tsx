@@ -102,7 +102,7 @@ export function SentimentTimeline({
     <div className="relative w-full h-[300px] overflow-hidden bg-gradient-to-br from-white to-gray-50/30 border-0 rounded-2xl shadow-xl p-6">
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-tmobile-magenta/5 to-purple-500/5" />
       <div className="relative flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-[#E8258E]">
+        <h3 className="text-card-title text-[#E8258E]">
           Sentiment Timeline
         </h3>
         

@@ -56,8 +56,8 @@ export function EarlyWarningSystem({ risingIssues = [], isLoading = false }: Ear
             </span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-orange-900">Early Warning System</h3>
-            <p className="text-xs text-orange-700">Detecting issues before they spread</p>
+            <h3 className="text-card-title text-orange-900">Early Warning System</h3>
+            <p className="text-xs-label text-orange-700">Detecting issues before they spread</p>
           </div>
         </div>
       </div>

@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Menu, X } from 'lucide-react'
 import { signOut } from '@/app/actions/auth'
 import { cn } from '@/lib/utils'
 
@@ -13,6 +15,7 @@ interface NavbarProps {
 
 export function Navbar({ userEmail }: NavbarProps) {
   const pathname = usePathname()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard' },
@@ -45,7 +48,7 @@ export function Navbar({ userEmail }: NavbarProps) {
             />
           </Link>
 
-          {/* Navigation Items */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               // For dashboard, exclude the /dashboard/geo path
@@ -74,6 +77,19 @@ export function Navbar({ userEmail }: NavbarProps) {
               )
             })}
           </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-white hover:bg-white/15 rounded-lg transition-all active:scale-95"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
 
           {/* User Info & Actions */}
           <div className="flex items-center gap-3">
@@ -112,6 +128,42 @@ export function Navbar({ userEmail }: NavbarProps) {
 
       {/* Bottom shine line */}
       <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden relative bg-gradient-to-br from-[#E8258E] via-[#E20074] to-[#C4006D] border-t border-white/10">
+          <nav className="max-w-[1600px] mx-auto px-4 py-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = item.href === '/dashboard'
+                ? pathname === '/dashboard'
+                : pathname === item.href || pathname.startsWith(item.href + '/')
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-3 text-sm font-medium rounded-lg transition-all",
+                    "hover:bg-white/15 active:scale-[0.98]",
+                    isActive
+                      ? "text-white bg-white/20 shadow-lg"
+                      : "text-white/90 hover:text-white"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+            {/* Mobile User Email */}
+            {userEmail && (
+              <div className="px-4 py-3 text-sm text-white/80 border-t border-white/10 mt-2 pt-4">
+                {userEmail}
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

@@ -216,31 +216,99 @@ export async function getIssueVelocityByProductArea(): Promise<IssueVelocityData
 }
 
 /**
- * Get sentiment distribution across all recent signals
- * @param timeWindowHours Time window to analyze (default 24 hours)
+ * Get sentiment distribution across all signals in the database
+ * @param timeWindowHours Time window to analyze (default: null for all signals)
  * @returns Counts of positive, neutral, and negative signals
  */
-export async function getSentimentDistribution(timeWindowHours: number = 24): Promise<SentimentDistribution> {
+export async function getSentimentDistribution(timeWindowHours: number | null = null): Promise<SentimentDistribution> {
   try {
     const supabase = createServiceClient();
 
-    const timeAgo = new Date(Date.now() - timeWindowHours * 60 * 60 * 1000).toISOString();
+    // Fetch ALL signals by using count first to determine total
+    // Then fetch in batches if needed (Supabase default limit is 1000)
 
-    // Fetch all signals from time window
-    const { data: signals, error } = await supabase
+    // First, get the total count
+    let countQuery = supabase
       .from('signals')
-      .select('sentiment')
-      .gte('detected_at', timeAgo);
+      .select('*', { count: 'exact', head: true });
 
-    if (error || !signals) {
-      console.error('Error fetching signals for sentiment distribution:', error);
+    if (timeWindowHours !== null) {
+      const timeAgo = new Date(Date.now() - timeWindowHours * 60 * 60 * 1000).toISOString();
+      countQuery = countQuery.gte('detected_at', timeAgo);
+    }
+
+    const { count, error: countError } = await countQuery;
+
+    if (countError) {
+      console.error('Error counting signals:', countError);
       return { positive: 0, neutral: 0, negative: 0 };
     }
 
-    // Count by sentiment ranges
-    // Positive: sentiment > 0.2
-    // Neutral: -0.2 <= sentiment <= 0.2
-    // Negative: sentiment < -0.2
+    // Fetch all signals using pagination (Supabase max is 1000 per request)
+    const pageSize = 1000;
+    const totalPages = Math.ceil((count || 0) / pageSize);
+    const allSignals: Array<{ sentiment: number; topic: string }> = [];
+
+    for (let page = 0; page < totalPages; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+
+      // Retry logic for network failures
+      let retries = 3;
+      let success = false;
+
+      while (retries > 0 && !success) {
+        try {
+          let query = supabase
+            .from('signals')
+            .select('sentiment, topic')
+            .range(from, to);
+
+          // Only apply time filter if timeWindowHours is provided
+          if (timeWindowHours !== null) {
+            const timeAgo = new Date(Date.now() - timeWindowHours * 60 * 60 * 1000).toISOString();
+            query = query.gte('detected_at', timeAgo);
+          }
+
+          const { data, error } = await query;
+
+          if (error) {
+            console.error(`Error fetching signals page ${page} (attempt ${4 - retries}/3):`, error);
+            retries--;
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
+            }
+            continue;
+          }
+
+          if (data) {
+            allSignals.push(...data);
+            success = true;
+          }
+        } catch (err) {
+          console.error(`Exception fetching signals page ${page}:`, err);
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
+
+      if (!success) {
+        console.warn(`Failed to fetch page ${page} after 3 retries, continuing...`);
+      }
+    }
+
+    const signals = allSignals;
+
+    if (signals.length === 0) {
+      return { positive: 0, neutral: 0, negative: 0 };
+    }
+
+    // Count by sentiment ranges (matching UI label thresholds from sentiment.ts)
+    // Positive: sentiment > 0.15
+    // Neutral: -0.15 <= sentiment <= 0.15
+    // Negative: sentiment < -0.15
     let positive = 0;
     let neutral = 0;
     let negative = 0;
@@ -248,9 +316,9 @@ export async function getSentimentDistribution(timeWindowHours: number = 24): Pr
     for (const signal of signals) {
       const sentiment = signal.sentiment || 0;
 
-      if (sentiment > 0.2) {
+      if (sentiment > 0.15) {
         positive++;
-      } else if (sentiment < -0.2) {
+      } else if (sentiment < -0.15) {
         negative++;
       } else {
         neutral++;
