@@ -11,6 +11,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import {
   AlertCircle,
   ChevronDown,
   ChevronRight,
@@ -21,6 +26,7 @@ import {
   Trash2,
   TrendingUp,
   Layers,
+  Activity,
 } from 'lucide-react'
 import {
   getSeverityColor,
@@ -29,6 +35,9 @@ import {
   formatStatus,
 } from '@/lib/utils/rice'
 import { StoryCard } from './story-card'
+import { RecoveryBadge } from './recovery-badge'
+import { RecoveryChart } from './recovery-chart'
+import type { CloseLoopData } from '@/lib/utils/close-loop'
 
 interface UserStory {
   persona: string
@@ -59,7 +68,12 @@ interface EpicCardProps {
       insights?: unknown
       prd?: unknown
       stories?: UserStory[]
+      closeloop?: CloseLoopData
     }
+    marked_done_at?: string
+    baseline_sentiment?: number
+    baseline_intensity?: number
+    baseline_signal_count?: number
     created_at: string
   }
   onViewEvidence?: (id: string) => void
@@ -83,9 +97,14 @@ export function EpicCard({
 }: EpicCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [storiesExpanded, setStoriesExpanded] = useState(true)
+  const [recoveryExpanded, setRecoveryExpanded] = useState(false)
   const hasPRD = !!epic.meta?.prd
   const stories = (epic.meta?.stories as UserStory[]) || []
   const hasStories = stories.length > 0
+
+  // Close-the-Loop data
+  const closeLoopData = epic.meta?.closeloop
+  const hasRecoveryData = epic.status === 'done' && closeLoopData && epic.marked_done_at
 
   const productAreaColor = epic.product_area?.color || '#E20074'
 
@@ -215,6 +234,46 @@ export function EpicCard({
               </div>
             </div>
           </div>
+
+          {/* CLOSE-THE-LOOP: Recovery Section (only for "done" status) */}
+          {hasRecoveryData && closeLoopData && epic.marked_done_at && epic.baseline_sentiment !== undefined && (
+            <div className="mt-4 space-y-3">
+              {/* Recovery Badge */}
+              <RecoveryBadge
+                closeLoopData={closeLoopData}
+                markedDoneAt={epic.marked_done_at}
+              />
+
+              {/* Expandable Recovery Details */}
+              <Collapsible
+                open={recoveryExpanded}
+                onOpenChange={setRecoveryExpanded}
+              >
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-xs text-tmobile-gray-700 hover:bg-tmobile-gray-50"
+                  >
+                    <Activity className="h-4 w-4 mr-2" />
+                    {recoveryExpanded ? 'Hide' : 'View'} Recovery Metrics
+                    <ChevronDown
+                      className={`h-4 w-4 ml-auto transition-transform ${
+                        recoveryExpanded ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <RecoveryChart
+                    closeLoopData={closeLoopData}
+                    markedDoneAt={epic.marked_done_at}
+                    baselineSentiment={epic.baseline_sentiment}
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-2 pt-2">

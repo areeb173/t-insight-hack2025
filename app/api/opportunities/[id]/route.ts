@@ -78,6 +78,21 @@ export async function PATCH(
     const supabase = await createClient()
     const updates = await request.json()
 
+    // Fetch current opportunity to check status change
+    const { data: currentOpp, error: fetchError } = await supabase
+      .from('opportunity_cards')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching opportunity:', fetchError)
+      return NextResponse.json(
+        { error: 'Opportunity not found', message: fetchError.message },
+        { status: 404 }
+      )
+    }
+
     // Build update object (only allow certain fields)
     const allowedFields = [
       'title',
@@ -102,6 +117,54 @@ export async function PATCH(
         { error: 'No valid fields to update' },
         { status: 400 }
       )
+    }
+
+    // CLOSE-THE-LOOP: Capture baseline metrics when marking as "done"
+    if (updates.status === 'done' && currentOpp.status !== 'done') {
+      console.log(`Capturing baseline metrics for opportunity ${id}`)
+
+      // Fetch linked signals
+      const signalIds = currentOpp.derived_from_signal_ids || []
+
+      if (signalIds.length > 0) {
+        const { data: signals, error: signalsError } = await supabase
+          .from('signals')
+          .select('*')
+          .in('id', signalIds)
+
+        if (!signalsError && signals && signals.length > 0) {
+          // Calculate baseline metrics
+          const avgSentiment = signals.reduce((sum, s) => sum + s.sentiment, 0) / signals.length
+          const totalIntensity = signals.reduce((sum, s) => sum + (s.intensity || 1), 0)
+
+          // Add baseline tracking fields
+          updateData.marked_done_at = new Date().toISOString()
+          updateData.baseline_sentiment = avgSentiment
+          updateData.baseline_intensity = totalIntensity
+          updateData.baseline_signal_count = signals.length
+
+          // Initialize close-loop metadata
+          const currentMeta = currentOpp.meta || {}
+          updateData.meta = {
+            ...currentMeta,
+            closeloop: {
+              status: 'monitoring',
+              monitoredAt: new Date().toISOString(),
+              recoveryMetrics: {
+                beforeSentiment: avgSentiment,
+                beforeIntensity: totalIntensity,
+                signalCountBefore: signals.length,
+              },
+            },
+          }
+
+          console.log(`Baseline captured: sentiment=${avgSentiment.toFixed(2)}, intensity=${totalIntensity}, signals=${signals.length}`)
+        } else {
+          console.warn('No signals found for opportunity, cannot capture baseline')
+        }
+      } else {
+        console.warn('No linked signals for opportunity, cannot capture baseline')
+      }
     }
 
     // Update opportunity
