@@ -49,7 +49,7 @@ export default function ConfirmSuccessPage() {
             </div>
 
             <Link href="/login" className="block">
-              <Button className="w-full bg-tmobile-magenta hover:bg-tmobile-magenta-dark">
+              <Button className="w-full bg-[#E8258E] hover:bg-[#D01A7A] text-white">
                 Continue to Sign In
               </Button>
             </Link>

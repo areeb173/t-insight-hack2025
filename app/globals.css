@@ -2,9 +2,9 @@
 
 :root {
   /* T-Mobile Brand Colors */
-  --tmobile-magenta: #E20074;
-  --tmobile-magenta-dark: #C4006D;
-  --tmobile-magenta-light: #FF2E9B;
+  --tmobile-magenta: #E8258E;
+  --tmobile-magenta-dark: #D01A7A;
+  --tmobile-magenta-light: #F03AA0;
   --tmobile-white: #FFFFFF;
   --tmobile-black: #000000;
 
@@ -21,7 +21,7 @@
   --tmobile-gray-900: #171717;
 
   /* Product Area Colors */
-  --tmobile-network: #E20074;
+  --tmobile-network: #E8258E;
   --tmobile-app: #7C3E93;
   --tmobile-billing: #00A19C;
   --tmobile-home-internet: #F58220;

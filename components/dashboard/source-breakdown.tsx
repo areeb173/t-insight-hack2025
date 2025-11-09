@@ -12,7 +12,7 @@ interface SourceBreakdownProps {
 }
 
 const COLORS = [
-  '#E20074', // T-Mobile Magenta
+  '#E8258E', // T-Mobile Magenta
   '#7C3E93', // Purple
   '#00A19C', // Teal
   '#F58220', // Orange
@@ -62,7 +62,7 @@ export function SourceBreakdown({ data }: SourceBreakdownProps) {
   return (
     <div className="relative w-full h-[300px] overflow-hidden bg-gradient-to-br from-white to-gray-50/30 border-0 rounded-2xl shadow-xl p-6">
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-500/5 to-tmobile-magenta/5" />
-      <h3 className="relative text-lg font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent mb-4">
+      <h3 className="relative text-lg font-bold text-[#E8258E] mb-4">
         Source Breakdown
       </h3>
       <ResponsiveContainer width="100%" height="100%">

@@ -75,7 +75,7 @@ export function EmergingIssuesTable({
             <TableHead className="font-semibold text-tmobile-black">
               <button
                 onClick={() => handleSort('topic')}
-                className="flex items-center gap-1 hover:text-tmobile-magenta transition-colors"
+                className="flex items-center gap-1 hover:text-[#E8258E] transition-colors"
               >
                 Topic
                 <ArrowUpDown className="h-4 w-4" />
@@ -84,7 +84,7 @@ export function EmergingIssuesTable({
             <TableHead className="font-semibold text-tmobile-black">
               <button
                 onClick={() => handleSort('intensity')}
-                className="flex items-center gap-1 hover:text-tmobile-magenta transition-colors"
+                className="flex items-center gap-1 hover:text-[#E8258E] transition-colors"
               >
                 Intensity
                 <ArrowUpDown className="h-4 w-4" />
@@ -93,7 +93,7 @@ export function EmergingIssuesTable({
             <TableHead className="font-semibold text-tmobile-black">
               <button
                 onClick={() => handleSort('sentiment')}
-                className="flex items-center gap-1 hover:text-tmobile-magenta transition-colors"
+                className="flex items-center gap-1 hover:text-[#E8258E] transition-colors"
               >
                 Sentiment
                 <ArrowUpDown className="h-4 w-4" />
@@ -102,7 +102,7 @@ export function EmergingIssuesTable({
             <TableHead className="font-semibold text-tmobile-black">
               <button
                 onClick={() => handleSort('sourceCount')}
-                className="flex items-center gap-1 hover:text-tmobile-magenta transition-colors"
+                className="flex items-center gap-1 hover:text-[#E8258E] transition-colors"
               >
                 Sources
                 <ArrowUpDown className="h-4 w-4" />
@@ -162,7 +162,7 @@ export function EmergingIssuesTable({
                   <Button
                     size="sm"
                     onClick={() => onCreateOpportunity?.(issue.id)}
-                    className="bg-tmobile-magenta hover:bg-tmobile-magenta-dark text-white"
+                    className="bg-[#E8258E] hover:bg-[#D01A7A] text-white"
                   >
                     Create Opportunity
                   </Button>

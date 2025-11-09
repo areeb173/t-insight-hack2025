@@ -74,7 +74,7 @@ export function DashboardContent({
       <section className="relative overflow-hidden bg-gradient-to-br from-white via-white to-tmobile-magenta/5 border-0 rounded-2xl shadow-2xl p-8">
         <div className="absolute inset-0 bg-gradient-to-br from-tmobile-magenta/5 via-transparent to-purple-500/5" />
         <div className="relative text-center">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-tmobile-magenta via-purple-600 to-tmobile-magenta bg-clip-text text-transparent mb-2">
+          <h2 className="text-3xl font-bold text-[#E8258E] mb-2">
             Customer Happiness Index
           </h2>
           <p className="text-sm text-tmobile-gray-600 mb-6">
@@ -88,7 +88,7 @@ export function DashboardContent({
 
       {/* Product Area Cards Grid */}
       <section>
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent mb-6">
+        <h2 className="text-2xl font-bold text-[#E8258E] mb-6">
           Product Areas
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -108,7 +108,7 @@ export function DashboardContent({
 
       {/* Emerging Issues Table */}
       <section>
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent mb-6">
+        <h2 className="text-2xl font-bold text-[#E8258E] mb-6">
           Top Emerging Issues (Last Hour)
         </h2>
         <EmergingIssuesTable

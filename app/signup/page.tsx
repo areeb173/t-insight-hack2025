@@ -83,7 +83,7 @@ export default function SignupPage() {
                   placeholder="name@example.com"
                   required
                   autoComplete="email"
-                  className="border-tmobile-gray-300 focus:ring-tmobile-magenta"
+                    className="border-tmobile-gray-300 focus:ring-[#E8258E]"
                 />
               </div>
 
@@ -164,7 +164,7 @@ export default function SignupPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-tmobile-magenta hover:bg-tmobile-magenta-dark"
+                className="w-full bg-[#E8258E] hover:bg-[#D01A7A] text-white"
                 disabled={loading || !!success}
               >
                 {loading ? 'Creating account...' : 'Create account'}
@@ -175,7 +175,7 @@ export default function SignupPage() {
               Already have an account?{' '}
               <Link
                 href="/login"
-                className="text-tmobile-magenta hover:text-tmobile-magenta-dark font-medium transition-colors"
+                className="text-[#E8258E] hover:text-[#D01A7A] font-medium transition-colors"
               >
                 Sign in
               </Link>

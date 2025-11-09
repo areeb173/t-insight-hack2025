@@ -38,7 +38,7 @@ export function SentimentTimeline({ data, singleLine, color }: SentimentTimeline
   }))
 
   const allProductAreas = [
-    { name: 'Network', color: '#E20074', key: 'Network' },
+    { name: 'Network', color: '#E8258E', key: 'Network' },
     { name: 'Mobile App', color: '#7C3E93', key: 'Mobile App' },
     { name: 'Billing', color: '#00A19C', key: 'Billing' },
     { name: 'Home Internet', color: '#F58220', key: 'Home Internet' },
@@ -46,13 +46,13 @@ export function SentimentTimeline({ data, singleLine, color }: SentimentTimeline
 
   // If singleLine is specified, only show that line
   const productAreas = singleLine
-    ? [{ name: singleLine, color: color || '#E20074', key: singleLine }]
+    ? [{ name: singleLine, color: color || '#E8258E', key: singleLine }]
     : allProductAreas
 
   return (
     <div className="relative w-full h-[300px] overflow-hidden bg-gradient-to-br from-white to-gray-50/30 border-0 rounded-2xl shadow-xl p-6">
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-tmobile-magenta/5 to-purple-500/5" />
-      <h3 className="relative text-lg font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent mb-4">
+      <h3 className="relative text-lg font-bold text-[#E8258E] mb-4">
         Sentiment Timeline (24h)
       </h3>
       <ResponsiveContainer width="100%" height="100%">

@@ -23,7 +23,7 @@ export default async function DashboardPage() {
     {
       id: '1',
       name: 'Network',
-      color: '#E20074',
+      color: '#E8258E',
       chi: 67,
       trend: -5,
       signalCount: 45,
@@ -122,12 +122,11 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-tmobile-magenta/3 to-purple-50">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-tmobile-gray-200/50 sticky top-0 z-50 shadow-sm">
+      <header className="bg-[#E8258E] sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-tmobile-magenta/20 rounded-full blur-md" />
                 <Image
                   src="/logo.svg"
                   alt="T-Mobile Logo"
@@ -137,27 +136,33 @@ export default async function DashboardPage() {
                 />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-white">
                   T-Insight
                 </h1>
-                <p className="text-sm text-tmobile-gray-600">Customer Intelligence Dashboard</p>
+                <p className="text-sm text-white/90">Customer Intelligence Dashboard</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <a
+                href="/dashboard"
+                className="text-sm text-white hover:text-white/80 transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
+              >
+                Dashboard
+              </a>
+              <a
                 href="/dashboard/geo"
-                className="text-sm text-tmobile-gray-600 hover:text-tmobile-magenta transition-colors font-medium"
+                className="text-sm text-white hover:text-white/80 transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
               >
                 GeoMap
               </a>
-              <span className="text-sm text-tmobile-gray-600">
+              <span className="text-sm text-white/90 px-3 py-2">
                 {user.email}
               </span>
               <form action={signOut}>
                 <Button
                   type="submit"
                   variant="outline"
-                  className="border-tmobile-magenta/30 hover:bg-tmobile-magenta/10 hover:border-tmobile-magenta/50 transition-all"
+                  className="border-white/30 bg-white/10 hover:bg-white/20 text-white hover:text-white border-white/40 transition-all"
                 >
                   Sign out
                 </Button>

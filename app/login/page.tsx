@@ -64,7 +64,7 @@ export default function LoginPage() {
                   placeholder="name@example.com"
                   required
                   autoComplete="email"
-                  className="border-tmobile-gray-300 focus:ring-tmobile-magenta"
+                    className="border-tmobile-gray-300 focus:ring-[#E8258E]"
                 />
               </div>
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
                   <Label htmlFor="password">Password</Label>
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-tmobile-magenta hover:text-tmobile-magenta-dark transition-colors"
+                    className="text-sm text-[#E8258E] hover:text-[#D01A7A] transition-colors"
                   >
                     Forgot password?
                   </Link>
@@ -109,7 +109,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-tmobile-magenta hover:bg-tmobile-magenta-dark"
+                className="w-full bg-[#E8258E] hover:bg-[#D01A7A] text-white"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
@@ -120,7 +120,7 @@ export default function LoginPage() {
               Don&apos;t have an account?{' '}
               <Link
                 href="/signup"
-                className="text-tmobile-magenta hover:text-tmobile-magenta-dark font-medium transition-colors"
+                className="text-[#E8258E] hover:text-[#D01A7A] font-medium transition-colors"
               >
                 Sign up
               </Link>

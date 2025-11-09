@@ -55,7 +55,7 @@ export default function ConfirmErrorPage() {
 
             <div className="space-y-2">
               <Link href="/signup" className="block">
-                <Button className="w-full bg-tmobile-magenta hover:bg-tmobile-magenta-dark">
+                <Button className="w-full bg-[#E8258E] hover:bg-[#D01A7A] text-white">
                   Try Signing Up Again
                 </Button>
               </Link>

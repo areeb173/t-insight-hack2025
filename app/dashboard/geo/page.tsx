@@ -73,12 +73,11 @@ export default async function GeoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-tmobile-magenta/3 to-purple-50">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-tmobile-gray-200/50 sticky top-0 z-50 shadow-sm">
+      <header className="bg-[#E8258E] sticky top-0 z-50 shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-tmobile-magenta/20 rounded-full blur-md" />
                 <Image
                   src="/logo.svg"
                   alt="T-Mobile Logo"
@@ -88,25 +87,33 @@ export default async function GeoPage() {
                 />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold text-white">
                   T-Insight
                 </h1>
-                <p className="text-sm text-tmobile-gray-600">Customer Intelligence Dashboard</p>
+                <p className="text-sm text-white/90">Customer Intelligence Dashboard</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <a
                 href="/dashboard"
-                className="text-sm text-tmobile-gray-600 hover:text-tmobile-magenta transition-colors"
+                className="text-sm text-white hover:text-white/80 transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
               >
                 Dashboard
               </a>
-              <span className="text-sm text-tmobile-gray-600">{user.email}</span>
+              <a
+                href="/dashboard/geo"
+                className="text-sm text-white hover:text-white/80 transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
+              >
+                GeoMap
+              </a>
+              <span className="text-sm text-white/90 px-3 py-2">
+                {user.email}
+              </span>
               <form action={signOut}>
                 <Button
                   type="submit"
                   variant="outline"
-                  className="border-tmobile-magenta/30 hover:bg-tmobile-magenta/10 hover:border-tmobile-magenta/50 transition-all"
+                  className="border-white/30 bg-white/10 hover:bg-white/20 text-white hover:text-white border-white/40 transition-all"
                 >
                   Sign out
                 </Button>
@@ -122,9 +129,9 @@ export default async function GeoPage() {
           {/* Page Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent mb-2">
-                Geographic Pain Point Heatmap
-              </h2>
+            <h2 className="text-3xl font-bold text-[#E8258E] mb-2">
+              Geographic Pain Point Heatmap
+            </h2>
               <p className="text-tmobile-gray-600">
                 Visualize customer feedback and issues by location across the United States
               </p>
@@ -167,17 +174,17 @@ export default async function GeoPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl border border-tmobile-gray-200 p-6 shadow-sm">
               <div className="text-sm text-tmobile-gray-600 mb-1">Total Feedback Points</div>
-              <div className="text-3xl font-bold text-tmobile-magenta">{feedback.length}</div>
+              <div className="text-3xl font-bold text-[#E8258E]">{feedback.length}</div>
             </div>
             <div className="bg-white rounded-xl border border-tmobile-gray-200 p-6 shadow-sm">
               <div className="text-sm text-tmobile-gray-600 mb-1">Unique Cities</div>
-              <div className="text-3xl font-bold text-tmobile-magenta">
+              <div className="text-3xl font-bold text-[#E8258E]">
                 {new Set(feedback.map((f: any) => f.city)).size}
               </div>
             </div>
             <div className="bg-white rounded-xl border border-tmobile-gray-200 p-6 shadow-sm">
               <div className="text-sm text-tmobile-gray-600 mb-1">Avg. Intensity</div>
-              <div className="text-3xl font-bold text-tmobile-magenta">
+              <div className="text-3xl font-bold text-[#E8258E]">
                 {feedback.length > 0
                   ? Math.round(
                       feedback.reduce((sum: number, f: any) => sum + (f.intensity || 0), 0) /

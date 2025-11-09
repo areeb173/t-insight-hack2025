@@ -150,7 +150,7 @@ export function ProductAreaDetail({
             {/* CHI Score Section */}
             <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-white to-gray-50/50">
               <CardHeader>
-                <CardTitle className="text-lg font-bold bg-gradient-to-r from-tmobile-magenta to-purple-600 bg-clip-text text-transparent">
+                <CardTitle className="text-lg font-bold text-[#E8258E]">
                   Customer Happiness Index
                 </CardTitle>
               </CardHeader>

@@ -38,7 +38,7 @@ export function InsertSampleDataButton() {
       <Button
         onClick={handleInsert}
         disabled={loading}
-        className="bg-tmobile-magenta hover:bg-tmobile-magenta-dark text-white"
+        className="bg-[#E8258E] hover:bg-[#D01A7A] text-white"
       >
         {loading ? 'Inserting...' : 'Insert Sample Data'}
       </Button>
