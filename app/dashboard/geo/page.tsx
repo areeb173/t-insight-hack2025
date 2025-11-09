@@ -94,7 +94,7 @@ export default function GeoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-tmobile-magenta/3 to-purple-50">
       {/* Header */}
-      <header className="bg-[#E8258E] sticky top-0 z-50 shadow-lg">
+      <header className="bg-[#E8258E] sticky top-0 z-[100] shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <a href="/dashboard" className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
@@ -108,10 +108,10 @@ export default function GeoPage() {
             </a>
             <div className="flex items-center gap-4">
               <a
-                href="/dashboard/geo"
+                href="/dashboard"
                 className="text-sm text-white hover:text-white/80 transition-colors font-medium px-3 py-2 rounded-md hover:bg-white/10"
               >
-                GeoMap
+                Dashboard
               </a>
               <span className="text-sm text-white/90 px-3 py-2">
                 {user.email}
@@ -149,7 +149,7 @@ export default function GeoPage() {
           </div>
 
           {/* Map Container */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-tmobile-gray-200">
+          <div className="bg-white rounded-2xl shadow-xl p-6 border border-tmobile-gray-200 relative z-0">
             <GeoMapEnhancedWrapper
               feedback={feedback}
               onViewChange={setMapView}

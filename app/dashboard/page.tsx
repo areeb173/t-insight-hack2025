@@ -84,7 +84,7 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-tmobile-magenta/3 to-purple-50">
       {/* Header */}
-      <header className="bg-[#E8258E] sticky top-0 z-50 shadow-lg">
+      <header className="bg-[#E8258E] sticky top-0 z-[100] shadow-lg">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <a href="/dashboard" className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">

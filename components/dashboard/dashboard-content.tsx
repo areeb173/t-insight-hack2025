@@ -12,6 +12,13 @@ import { MomentsOfDelight } from './moments-of-delight'
 import { IssueVelocityChart } from './issue-velocity-chart'
 import { SentimentDistribution } from './sentiment-distribution'
 import { SplashScreen } from '@/components/ui/splash-screen'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface ProductArea {
   id: string
@@ -59,6 +66,16 @@ interface OutageData {
   summary: OutageSummary
 }
 
+interface Insights {
+  summary: string
+  rootCause: string
+  recommendations: string[]
+  priority: 'Low' | 'Medium' | 'High' | 'Critical'
+  urgency: 'Low' | 'Medium' | 'High' | 'Critical'
+  expectedImpact: string
+  stakeholders: string[]
+}
+
 interface DashboardContentProps {
   overallCHI: number
   productAreas: ProductArea[]
@@ -78,6 +95,10 @@ export function DashboardContent({
 }: DashboardContentProps) {
   const [selectedProductArea, setSelectedProductArea] = useState<ProductArea | null>(null)
   const [isReady, setIsReady] = useState(false)
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null)
+  const [insights, setInsights] = useState<Insights | null>(null)
+  const [isLoadingInsights, setIsLoadingInsights] = useState(false)
+  const [insightsError, setInsightsError] = useState<string | null>(null)
 
   useEffect(() => {
     // Mark as ready after component mounts and data is available
@@ -94,9 +115,82 @@ export function DashboardContent({
     }
   }
 
-  const handleCreateOpportunity = (issueId: string) => {
-    console.log(`Create opportunity for issue ${issueId}`)
-    // TODO: Navigate to opportunity creation page or open modal
+  const handleCreateOpportunity = async (issueId: string) => {
+    const issue = emergingIssues.find((i) => i.id === issueId)
+    if (!issue) {
+      console.error('Issue not found:', issueId)
+      return
+    }
+
+    setSelectedIssue(issue)
+    setInsights(null)
+    setInsightsError(null)
+    setIsLoadingInsights(true)
+
+    try {
+      const response = await fetch('/api/insights/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic: issue.topic,
+          intensity: issue.intensity,
+          sentiment: issue.sentiment,
+          sourceCount: issue.sourceCount,
+          productArea: issue.productArea,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate insights')
+      }
+
+      if (data.success && data.insights) {
+        setInsights(data.insights)
+      } else {
+        throw new Error('Invalid response format')
+      }
+    } catch (error) {
+      console.error('Error generating insights:', error)
+      setInsightsError(
+        error instanceof Error ? error.message : 'Failed to generate insights'
+      )
+    } finally {
+      setIsLoadingInsights(false)
+    }
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'Critical':
+        return 'bg-red-100 text-red-800 border-red-200'
+      case 'High':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'Low':
+        return 'bg-blue-100 text-blue-800 border-blue-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'Critical':
+        return 'bg-red-100 text-red-800 border-red-200'
+      case 'High':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'Low':
+        return 'bg-green-100 text-green-800 border-green-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
   }
 
   // Mock data for new components (will be replaced with real data from API)
@@ -370,6 +464,104 @@ export function DashboardContent({
         isOpen={!!selectedProductArea}
         onClose={() => setSelectedProductArea(null)}
       />
+
+      {/* Insights Dialog */}
+      <Dialog open={!!selectedIssue} onOpenChange={(open) => {
+        if (!open) {
+          setSelectedIssue(null)
+          setInsights(null)
+          setInsightsError(null)
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#E8258E]">
+              AI-Generated Insights
+            </DialogTitle>
+            {selectedIssue && (
+              <DialogDescription className="mt-2">
+                <span className="font-semibold">Issue:</span> {selectedIssue.topic}
+                <br />
+                <span className="font-semibold">Product Area:</span> {selectedIssue.productArea}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+
+          {isLoadingInsights && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E8258E] mb-4"></div>
+              <p className="text-tmobile-gray-600">Generating insights with AI...</p>
+            </div>
+          )}
+
+          {insightsError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h3 className="font-semibold text-red-800 mb-2">Error</h3>
+              <p className="text-red-700">{insightsError}</p>
+            </div>
+          )}
+
+          {insights && !isLoadingInsights && (
+            <div className="space-y-6 mt-4">
+              {/* Priority and Urgency Badges */}
+              <div className="flex gap-4">
+                <div className={`px-3 py-1 rounded-full border text-sm font-semibold ${getPriorityColor(insights.priority)}`}>
+                  Priority: {insights.priority}
+                </div>
+                <div className={`px-3 py-1 rounded-full border text-sm font-semibold ${getUrgencyColor(insights.urgency)}`}>
+                  Urgency: {insights.urgency}
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-tmobile-gray-800">Summary</h3>
+                <p className="text-tmobile-gray-700">{insights.summary}</p>
+              </div>
+
+              {/* Root Cause */}
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-tmobile-gray-800">Root Cause Analysis</h3>
+                <p className="text-tmobile-gray-700">{insights.rootCause}</p>
+              </div>
+
+              {/* Recommendations */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-tmobile-gray-800">Recommendations</h3>
+                <ul className="space-y-2">
+                  {insights.recommendations.map((rec, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-[#E8258E] font-bold mt-1">•</span>
+                      <span className="text-tmobile-gray-700">{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Expected Impact */}
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-tmobile-gray-800">Expected Impact</h3>
+                <p className="text-tmobile-gray-700">{insights.expectedImpact}</p>
+              </div>
+
+              {/* Stakeholders */}
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-tmobile-gray-800">Stakeholders</h3>
+                <div className="flex flex-wrap gap-2">
+                  {insights.stakeholders.map((stakeholder, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-[#E8258E]/10 text-[#E8258E] rounded-full text-sm font-medium border border-[#E8258E]/20"
+                    >
+                      {stakeholder}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       </div>
     </>
   )
