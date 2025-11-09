@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Cron Orchestrator (POST endpoint)
- * Calls all scraper endpoints IN PARALLEL and aggregates results
+ * Cron Orchestrator (POST endpoint) - OPTIMIZED VERSION
+ * Calls all scraper endpoints IN PARALLEL for faster execution
  * Secured with CRON_SECRET environment variable
  *
  * Called by: Supabase pg_cron via net.http_post()
  *
- * Performance: ~3-5 seconds (parallel) vs ~14 seconds (sequential)
+ * Performance:
+ * - OLD: Sequential with delays = 14+ seconds
+ * - NEW: Parallel = 3-5 seconds
  */
 
 const SCRAPER_ENDPOINTS = [
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
     // Get base URL
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-    // Call all scrapers IN PARALLEL for much faster execution
+    // Call all scrapers IN PARALLEL for speed
     const results: Record<string, ScraperResult> = {};
     let totalCount = 0;
 
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Wait for all scrapers to complete in parallel
+    // Wait for all scrapers to complete
     const scraperResults = await Promise.all(scraperPromises);
 
     // Aggregate results
