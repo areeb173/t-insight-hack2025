@@ -18,6 +18,8 @@ import {
   MoreVertical,
   Trash2,
   TrendingUp,
+  Sparkles,
+  CheckCircle2,
 } from 'lucide-react'
 import {
   getSeverityColor,
@@ -47,6 +49,17 @@ interface OpportunityCardProps {
       insights?: unknown
       prd?: unknown
       stories?: unknown[]
+      closeloop?: {
+        status?: 'recovered' | 'monitoring' | 'not-recovered'
+        monitoredAt?: string
+      }
+      releaseNotes?: {
+        generatedAt: string
+        customerFacing: string
+        executiveSummary: string
+        internalNotes: string
+        suggestedTitle: string
+      }
     }
     created_at: string
   }
@@ -54,6 +67,8 @@ interface OpportunityCardProps {
   onGeneratePRD?: (id: string) => void
   onViewPRD?: (id: string) => void
   onGenerateStories?: (id: string) => void
+  onGenerateReleaseNotes?: (id: string) => void
+  onViewReleaseNotes?: (id: string) => void
   onUpdateStatus?: (id: string, status: 'new' | 'in-progress' | 'done') => void
   onDelete?: (id: string) => void
 }
@@ -64,12 +79,17 @@ export function OpportunityCard({
   onGeneratePRD,
   onViewPRD,
   onGenerateStories,
+  onGenerateReleaseNotes,
+  onViewReleaseNotes,
   onUpdateStatus,
   onDelete,
 }: OpportunityCardProps) {
   const [expanded, setExpanded] = useState(false)
   const hasPRD = !!opportunity.meta?.prd
   const hasStories = !!opportunity.meta?.stories && (opportunity.meta.stories as unknown[]).length > 0
+  const isRecovered = opportunity.meta?.closeloop?.status === 'recovered'
+  const hasReleaseNotes = !!opportunity.meta?.releaseNotes
+  const canGenerateReleaseNotes = isRecovered && !hasReleaseNotes
 
   const productAreaColor = opportunity.product_area?.color || '#E20074'
 
@@ -107,6 +127,18 @@ export function OpportunityCard({
                   }}
                 >
                   {opportunity.product_area.name}
+                </Badge>
+              )}
+              {isRecovered && (
+                <Badge className="bg-green-500/10 text-green-700 border-green-500/30 text-xs font-semibold border">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  RECOVERED
+                </Badge>
+              )}
+              {hasReleaseNotes && (
+                <Badge className="bg-blue-500/10 text-blue-700 border-blue-500/30 text-xs font-semibold border">
+                  <FileText className="h-3 w-3 mr-1" />
+                  RELEASE NOTES
                 </Badge>
               )}
             </div>
@@ -243,6 +275,31 @@ export function OpportunityCard({
             >
               <Lightbulb className="h-3 w-3 mr-1.5" />
               {hasStories ? 'Regenerate' : 'Generate'} Stories
+            </Button>
+          )}
+
+          {/* Release Notes Button - Show if recovered */}
+          {canGenerateReleaseNotes && onGenerateReleaseNotes && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onGenerateReleaseNotes(opportunity.id)}
+              className="text-xs border-green-500/30 text-green-600 hover:bg-green-500/10 hover:border-green-500/50 animate-pulse"
+            >
+              <Sparkles className="h-3 w-3 mr-1.5" />
+              Generate Release Notes
+            </Button>
+          )}
+
+          {hasReleaseNotes && onViewReleaseNotes && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onViewReleaseNotes(opportunity.id)}
+              className="text-xs border-blue-500/30 text-blue-600 hover:bg-blue-500/10 hover:border-blue-500/50"
+            >
+              <FileText className="h-3 w-3 mr-1.5" />
+              View Release Notes
             </Button>
           )}
         </div>

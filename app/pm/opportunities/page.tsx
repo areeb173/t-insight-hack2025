@@ -8,6 +8,8 @@ import { OpportunityFilters } from '@/components/opportunities/opportunity-filte
 import { EvidenceDrawer } from '@/components/opportunities/evidence-drawer'
 import { PRDDisplay } from '@/components/opportunities/prd-display'
 import { StoryDetailDialog } from '@/components/opportunities/story-detail-dialog'
+import { ReleaseNotesGenerator } from '@/components/opportunities/release-notes-generator'
+import { ReleaseNotesDisplay } from '@/components/opportunities/release-notes-display'
 import { Navbar } from '@/components/layout/navbar'
 import { toast } from 'sonner'
 import { Loader2, AlertTriangle } from 'lucide-react'
@@ -50,6 +52,27 @@ interface Opportunity {
       linkedSignalIds: string[]
       priority: 'Low' | 'Medium' | 'High' | 'Critical'
     }>
+    closeloop?: {
+      status?: 'recovered' | 'monitoring' | 'not-recovered'
+      monitoredAt?: string
+      recoveryMetrics?: any
+    }
+    releaseNotes?: {
+      generatedAt: string
+      customerFacing: string
+      executiveSummary: string
+      internalNotes: string
+      suggestedTitle: string
+      metadata: {
+        chiImprovement: number | null
+        sentimentRecovery: number
+        affectedCustomers: number
+        timeToRecover: string
+        detectionDate: string
+        fixDate: string
+        recoveryDate: string
+      }
+    }
   }
   created_at: string
 }
@@ -106,6 +129,12 @@ export default function OpportunitiesPage() {
   const [selectedStoryNumber, setSelectedStoryNumber] = useState(0)
   const [selectedStoryEpicTitle, setSelectedStoryEpicTitle] = useState('')
   const [selectedStoryEpicColor, setSelectedStoryEpicColor] = useState('#E20074')
+
+  // Release Notes state
+  const [releaseNotesGeneratorOpen, setReleaseNotesGeneratorOpen] = useState(false)
+  const [releaseNotesDisplayOpen, setReleaseNotesDisplayOpen] = useState(false)
+  const [selectedReleaseNotesOpportunityId, setSelectedReleaseNotesOpportunityId] = useState<string | null>(null)
+  const [selectedReleaseNotes, setSelectedReleaseNotes] = useState<any>(null)
 
   // Loading states
   const [generatingPRD, setGeneratingPRD] = useState<string | null>(null)
@@ -337,6 +366,28 @@ export default function OpportunitiesPage() {
     setStoryDetailOpen(true)
   }
 
+  const handleGenerateReleaseNotes = (id: string) => {
+    setSelectedReleaseNotesOpportunityId(id)
+    setReleaseNotesGeneratorOpen(true)
+  }
+
+  const handleViewReleaseNotes = (id: string) => {
+    const opp = opportunities.find((o) => o.id === id)
+    if (opp?.meta?.releaseNotes) {
+      setSelectedReleaseNotes(opp.meta.releaseNotes)
+      setSelectedReleaseNotesOpportunityId(id)
+      setReleaseNotesDisplayOpen(true)
+    }
+  }
+
+  const handleReleaseNotesGenerated = async () => {
+    // Refresh opportunities to show updated release notes
+    await fetchData()
+    toast.success('Release Notes Saved!', {
+      description: 'Release notes have been saved to the opportunity.',
+    })
+  }
+
   // Stats
   const stats = {
     total: opportunities.length,
@@ -452,6 +503,8 @@ export default function OpportunitiesPage() {
                 onGeneratePRD={generatingPRD === epic.id ? undefined : handleGeneratePRD}
                 onViewPRD={handleViewPRD}
                 onGenerateStories={generatingStories === epic.id ? undefined : handleGenerateStories}
+                onGenerateReleaseNotes={handleGenerateReleaseNotes}
+                onViewReleaseNotes={handleViewReleaseNotes}
                 onUpdateStatus={handleUpdateStatus}
                 onDelete={handleDelete}
                 onViewStoryDetail={handleViewStoryDetail}
@@ -494,6 +547,31 @@ export default function OpportunitiesPage() {
           setSelectedStory(null)
         }}
       />
+
+      {/* Release Notes Generator Dialog */}
+      {selectedReleaseNotesOpportunityId && (
+        <ReleaseNotesGenerator
+          opportunityId={selectedReleaseNotesOpportunityId}
+          opportunityTitle={
+            opportunities.find((o) => o.id === selectedReleaseNotesOpportunityId)?.title || ''
+          }
+          open={releaseNotesGeneratorOpen}
+          onOpenChange={setReleaseNotesGeneratorOpen}
+          onGenerated={handleReleaseNotesGenerated}
+        />
+      )}
+
+      {/* Release Notes Display Dialog */}
+      {selectedReleaseNotes && selectedReleaseNotesOpportunityId && (
+        <ReleaseNotesDisplay
+          releaseNotes={selectedReleaseNotes}
+          opportunityTitle={
+            opportunities.find((o) => o.id === selectedReleaseNotesOpportunityId)?.title || ''
+          }
+          open={releaseNotesDisplayOpen}
+          onOpenChange={setReleaseNotesDisplayOpen}
+        />
+      )}
     </div>
   )
 }
